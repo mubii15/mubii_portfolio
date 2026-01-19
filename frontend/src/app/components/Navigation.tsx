@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { useState } from 'react';
+import { Twitter, Instagram, Youtube } from 'lucide-react';
 
 export function Navigation() {
   const location = useLocation();
@@ -27,24 +28,38 @@ export function Navigation() {
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex gap-8 text-sm tracking-wide uppercase">
-          {navItems.slice(1).map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`relative transition-opacity hover:opacity-100 ${location.pathname === item.path ? 'opacity-100' : 'opacity-50'
-                }`}
-            >
-              {item.label}
-              {location.pathname === item.path && (
-                <motion.div
-                  layoutId="activeNav"
-                  className="absolute -bottom-1 left-0 right-0 h-px bg-white"
-                  transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
-                />
-              )}
-            </Link>
-          ))}
+        <div className="hidden md:flex items-center gap-8">
+          <div className="flex gap-8 text-sm tracking-wide uppercase">
+            {navItems.slice(1).map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`relative transition-opacity hover:opacity-100 ${location.pathname === item.path ? 'opacity-100' : 'opacity-50'
+                  }`}
+              >
+                {item.label}
+                {location.pathname === item.path && (
+                  <motion.div
+                    layoutId="activeNav"
+                    className="absolute -bottom-1 left-0 right-0 h-px bg-white"
+                    transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+                  />
+                )}
+              </Link>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-6 ml-4 border-l border-white/20 pl-8">
+            <a href="https://twitter.com/mubii_15" target="_blank" rel="noopener noreferrer" className="opacity-50 hover:opacity-100 transition-opacity">
+              <Twitter size={18} />
+            </a>
+            <a href="https://www.instagram.com/mubii15" target="_blank" rel="noopener noreferrer" className="opacity-50 hover:opacity-100 transition-opacity">
+              <Instagram size={18} />
+            </a>
+            <a href="http://youtube.com/@mubii15" target="_blank" rel="noopener noreferrer" className="opacity-50 hover:opacity-100 transition-opacity">
+              <Youtube size={18} />
+            </a>
+          </div>
         </div>
 
         {/* Mobile Navigation Toggle */}
@@ -65,7 +80,7 @@ export function Navigation() {
             exit={{ opacity: 0, y: -20 }}
             className="fixed inset-0 bg-black flex flex-col items-center justify-center z-40"
           >
-            <div className="flex flex-col gap-8 text-center">
+            <div className="flex flex-col gap-8 text-center items-center">
               {navItems.map((item) => (
                 <Link
                   key={item.path}
@@ -77,6 +92,18 @@ export function Navigation() {
                   {item.label}
                 </Link>
               ))}
+
+              <div className="flex items-center gap-8 mt-8 border-t border-white/10 pt-8 w-48 justify-center">
+                <a href="https://twitter.com/mubii_15" target="_blank" rel="noopener noreferrer" className="opacity-50 hover:opacity-100 transition-opacity">
+                  <Twitter size={24} />
+                </a>
+                <a href="https://www.instagram.com/mubii15" target="_blank" rel="noopener noreferrer" className="opacity-50 hover:opacity-100 transition-opacity">
+                  <Instagram size={24} />
+                </a>
+                <a href="http://youtube.com/@mubii15" target="_blank" rel="noopener noreferrer" className="opacity-50 hover:opacity-100 transition-opacity">
+                  <Youtube size={24} />
+                </a>
+              </div>
             </div>
           </motion.div>
         )}

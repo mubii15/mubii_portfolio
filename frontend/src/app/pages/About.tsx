@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { Mail, Instagram, Twitter } from 'lucide-react';
+import { Mail, Instagram, Twitter, Youtube } from 'lucide-react';
 
 export function About() {
   return (
@@ -77,7 +77,7 @@ export function About() {
           className="border-t border-white/10 pt-16"
         >
           <h2 className="text-4xl tracking-tighter mb-8 opacity-50">Get in Touch</h2>
-          
+
           <div className="grid md:grid-cols-3 gap-8 mb-16">
             <a
               href="mailto:hello@mubarakismail.com"
@@ -93,7 +93,7 @@ export function About() {
             </a>
 
             <a
-              href="https://instagram.com/mubii"
+              href="https://www.instagram.com/mubii15"
               target="_blank"
               rel="noopener noreferrer"
               className="group cursor-hover"
@@ -102,13 +102,13 @@ export function About() {
                 <Instagram className="w-6 h-6 opacity-50 group-hover:opacity-100 transition-opacity" />
                 <div>
                   <div className="text-xs tracking-wider uppercase opacity-50 mb-1">Instagram</div>
-                  <div className="tracking-wide">@mubii</div>
+                  <div className="tracking-wide">@mubii15</div>
                 </div>
               </div>
             </a>
 
             <a
-              href="https://twitter.com/mubii"
+              href="https://twitter.com/mubii_15"
               target="_blank"
               rel="noopener noreferrer"
               className="group cursor-hover"
@@ -117,7 +117,22 @@ export function About() {
                 <Twitter className="w-6 h-6 opacity-50 group-hover:opacity-100 transition-opacity" />
                 <div>
                   <div className="text-xs tracking-wider uppercase opacity-50 mb-1">Twitter</div>
-                  <div className="tracking-wide">@mubii</div>
+                  <div className="tracking-wide">@mubii_15</div>
+                </div>
+              </div>
+            </a>
+
+            <a
+              href="http://youtube.com/@mubii15"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group cursor-hover"
+            >
+              <div className="flex items-center gap-4 p-6 border border-white/10 hover:border-white/30 transition-all">
+                <Youtube className="w-6 h-6 opacity-50 group-hover:opacity-100 transition-opacity" />
+                <div>
+                  <div className="text-xs tracking-wider uppercase opacity-50 mb-1">YouTube</div>
+                  <div className="tracking-wide">@mubii15</div>
                 </div>
               </div>
             </a>
