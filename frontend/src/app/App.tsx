@@ -11,6 +11,13 @@ import { Cinematography } from './pages/Cinematography';
 import { VFX } from './pages/VFX';
 import { ContemporaryArt } from './pages/ContemporaryArt';
 import { About } from './pages/About';
+import { CategoryGallery } from './pages/CategoryGallery';
+import { ProjectDetail } from './pages/ProjectDetail';
+import { AdminLayout } from './components/admin/AdminLayout';
+import { AdminDashboard } from './pages/admin/AdminDashboard';
+import { AdminProjects } from './pages/admin/AdminProjects';
+import { AdminMedia } from './pages/admin/AdminMedia';
+import { AdminProjectEditor } from './pages/admin/AdminProjectEditor';
 
 function PageTransition({ children }: { children: React.ReactNode }) {
   return (
@@ -81,6 +88,37 @@ function AnimatedRoutes() {
               </PageTransition>
             }
           />
+          <Route
+            path="/gallery/:category"
+            element={
+              <PageTransition>
+                <CategoryGallery />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/gallery"
+            element={
+              <PageTransition>
+                <CategoryGallery />
+              </PageTransition>
+            }
+          />
+            <Route
+              path="/project/:id"
+              element={
+                <PageTransition>
+                  <ProjectDetail />
+                </PageTransition>
+              }
+            />
+
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="projects" element={<AdminProjects />} />
+              <Route path="projects/:id" element={<AdminProjectEditor />} />
+              <Route path="media" element={<AdminMedia />} />
+            </Route>
         </Routes>
       </AnimatePresence>
     </>

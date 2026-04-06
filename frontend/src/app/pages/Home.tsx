@@ -1,7 +1,8 @@
-
 import { motion, useScroll, useTransform, useMotionValueEvent } from 'motion/react';
 import { FanOutStack } from '../components/FanOutStack';
 import { useState, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
 
 // Import images
 import img1 from '../../assets/images/img1.png';
@@ -143,16 +144,28 @@ export function Home() {
 
         {/* Gallery Text Section */}
         {/* Adjusted padding top to ensure it doesn't overlap prematurely */}
-        <div className="relative h-screen flex flex-col justify-end pb-8 md:pb-12 pointer-events-none">
+        <div className="relative h-screen flex flex-col justify-end pb-16 md:pb-24 pointer-events-none">
           <motion.div
             style={{ opacity: galleryOpacity, y: galleryY }}
-            className="border-t border-white/10 pt-4 flex items-end justify-between transition-all duration-500"
+            className="border-t border-white/10 pt-4 flex flex-col gap-12 transition-all duration-500"
           >
-            <div className="text-[12vw] md:text-[8vw] leading-none font-light tracking-tighter opacity-80 transition-all duration-500">
-              {selectedCategoryIndex !== null ? `0${selectedCategoryIndex + 1}` : '08'}
+            <div className="flex items-end justify-between">
+              <div className="text-[12vw] md:text-[5vw] leading-none font-light tracking-tighter opacity-80 transition-all duration-500">
+                {selectedCategoryIndex !== null ? `0${selectedCategoryIndex + 1}` : '08'}
+              </div>
+              <div className="text-[12vw] md:text-[5vw] leading-none font-light tracking-tighter text-right opacity-80 uppercase transition-all duration-500">
+                {selectedCategoryIndex !== null ? categories[selectedCategoryIndex] : 'PORTFOLIO'}
+              </div>
+
+            <div className="flex justify-center pointer-events-auto">
+              <Link 
+                to="/gallery" 
+                className="group flex items-center gap-6 px-12 py-5  text-white text-xs font-bold tracking-[0.4em] uppercase transition-all duration-500 hover:scale-105 hover:shadow-[0_0_40px_rgba(255,255,255,0.4)]"
+              >
+                SEE ALL WORK
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-500" />
+              </Link>
             </div>
-            <div className="text-[12vw] md:text-[8vw] leading-none font-light tracking-tighter text-right opacity-80 uppercase transition-all duration-500">
-              {selectedCategoryIndex !== null ? categories[selectedCategoryIndex] : 'PORTFOLIO'}
             </div>
           </motion.div>
         </div>

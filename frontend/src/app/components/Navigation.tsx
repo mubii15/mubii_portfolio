@@ -9,11 +9,12 @@ export function Navigation() {
 
   const navItems = [
     { path: '/', label: 'Home' },
-    { path: '/', label: 'Portfolio' }, // Assuming Portfolio links to section; using '/' for now or anchor if needed. User asked for "Portfolio, Contact, About" top nav. 
-    // Actually, usually Portfolio Home is the gallery. 
+    { path: '/gallery/all', label: 'Portfolio' },
     { path: '/contact', label: 'Contact' },
     { path: '/about', label: 'About' },
   ];
+
+  if (location.pathname.startsWith('/admin')) return null;
 
   return (
     <motion.nav
