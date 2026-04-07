@@ -15,11 +15,14 @@ export function AdminProjects() {
         <div className="flex flex-col gap-10">
             <div className="flex justify-between items-end">
                 <div className="flex flex-col gap-2">
-                    <h1 className="text-4xl font-bold tracking-tighter text-white uppercase italic font-black">Project Manager</h1>
-                    <p className="text-slate-500 text-[10px] tracking-[0.3em] font-bold uppercase">Curating the gallery / {GALLERY_DATA.length} Total items</p>
+                    <h1 className="text-4xl font-bold tracking-tighter text-white uppercase italic font-black">Archive</h1>
+                    <p className="text-slate-500 text-[10px] tracking-[0.3em] font-bold uppercase">Archive Control / {GALLERY_DATA.length} Total items</p>
                 </div>
-                <button className="flex items-center gap-3 px-6 py-3 bg-cyan-500 text-black text-xs font-black tracking-widest uppercase rounded-xl hover:scale-105 transition-all shadow-[0_0_20px_rgba(6,182,212,0.4)]">
-                    <Plus className="w-4 h-4" /> New Exhibition
+                <button 
+                    onClick={() => window.location.href = '/admin/upload'}
+                    className="flex items-center gap-3 px-6 py-3 bg-cyan-500 text-black text-xs font-black tracking-widest uppercase rounded-xl hover:scale-105 transition-all shadow-[0_0_20px_rgba(6,182,212,0.4)]"
+                >
+                    <Plus className="w-4 h-4" /> Add New
                 </button>
             </div>
 
@@ -30,30 +33,27 @@ export function AdminProjects() {
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-hover:text-cyan-500 transition-colors" />
                         <input 
                             type="text" 
-                            placeholder="SEARCH BY FILENAME OR TITLE..." 
+                            placeholder="SEARCH ARCHIVE..." 
                             className="w-full bg-black/50 border border-white/5 rounded-xl py-3 pl-12 pr-4 text-[10px] font-bold tracking-widest uppercase focus:border-cyan-500/50 outline-none transition-all"
                         />
                     </div>
                 </div>
                 <div className="flex gap-2">
-                    <button className="flex items-center gap-2 px-4 py-2 hover:bg-white/5 rounded-lg text-[10px] font-bold tracking-widest uppercase transition-all">
-                        <Filter className="w-4 h-4 text-slate-500" /> Filter
-                    </button>
-                    <div className="h-6 w-px bg-white/10 self-center mx-2" />
-                    <button className="px-4 py-2 hover:bg-white/5 rounded-lg text-[10px] font-bold tracking-widest uppercase text-cyan-500">Drafts (2)</button>
-                    <button className="px-4 py-2 hover:bg-white/5 rounded-lg text-[10px] font-bold tracking-widest uppercase">Published ({GALLERY_DATA.length})</button>
+                    <button className="px-4 py-2 hover:bg-white/5 rounded-lg text-[10px] font-bold tracking-widest uppercase text-cyan-500">All ({GALLERY_DATA.length})</button>
+                    <button className="px-4 py-2 hover:bg-white/5 rounded-lg text-[10px] font-bold tracking-widest uppercase opacity-40">Drafts (2)</button>
+                    <button className="px-4 py-2 hover:bg-white/5 rounded-lg text-[10px] font-bold tracking-widest uppercase opacity-40">Published</button>
                 </div>
             </div>
 
             {/* PROJECTS TABLE */}
-            <div className="bg-white/[0.02] border border-white/5 rounded-3xl overflow-hidden backdrop-blur-2xl">
+            <div className="bg-white/[0.02] border border-white/5 rounded-3xl overflow-hidden backdrop-blur-2xl transition-all">
                 <table className="w-full text-left border-collapse">
                     <thead>
                         <tr className="border-b border-white/5 bg-white/[0.01]">
                             <th className="px-8 py-5 text-[10px] font-black tracking-[0.2em] uppercase text-white/40">Status</th>
-                            <th className="px-8 py-5 text-[10px] font-black tracking-[0.2em] uppercase text-white/40">Project / Title</th>
+                            <th className="px-8 py-5 text-[10px] font-black tracking-[0.2em] uppercase text-white/40">Exhibition / Asset</th>
                             <th className="px-8 py-5 text-[10px] font-black tracking-[0.2em] uppercase text-white/40">Category</th>
-                            <th className="px-8 py-5 text-[10px] font-black tracking-[0.2em] uppercase text-white/40">Date</th>
+                            <th className="px-8 py-5 text-[10px] font-black tracking-[0.2em] uppercase text-white/40">Type</th>
                             <th className="px-8 py-5 text-[10px] font-black tracking-[0.2em] uppercase text-white/40 text-right">Actions</th>
                         </tr>
                     </thead>
@@ -68,39 +68,41 @@ export function AdminProjects() {
                             >
                                 <td className="px-8 py-6">
                                     <div className="flex items-center gap-2">
-                                        <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]" />
-                                        <span className="text-[10px] font-black tracking-widest uppercase text-green-500">Live</span>
+                                        <div className="w-1.5 h-1.5 rounded-full bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]" />
+                                        <span className="text-[9px] font-bold tracking-widest uppercase text-cyan-500">Live</span>
                                     </div>
                                 </td>
                                 <td className="px-8 py-6">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-lg overflow-hidden border border-white/10 group-hover:border-cyan-500/50 transition-colors">
-                                            <img src={project.image} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                        <div className="w-14 h-14 rounded-lg overflow-hidden border border-white/10 group-hover:border-cyan-500/50 transition-colors">
+                                            <img src={project.image} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                                         </div>
                                         <div className="flex flex-col">
-                                            <span className="text-sm font-bold text-white group-hover:text-cyan-400 transition-colors tracking-tight uppercase">{project.name}</span>
-                                            <span className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">/slug/{project.id}</span>
+                                            <span className="text-sm font-bold text-white group-hover:text-cyan-400 transition-colors tracking-tight uppercase tracking-widest leading-none">{project.name}</span>
+                                            <span className="text-[8px] text-slate-500 font-bold uppercase tracking-[0.2em] opacity-40 mt-1">ID: {project.id}0426</span>
                                         </div>
                                     </div>
                                 </td>
                                 <td className="px-8 py-6">
-                                    <span className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[9px] font-bold uppercase tracking-widest text-slate-400">
+                                    <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 group-hover:text-white transition-colors">
                                         {project.category}
                                     </span>
                                 </td>
                                 <td className="px-8 py-6">
-                                    <span className="text-[10px] font-medium text-slate-400 font-mono tracking-tighter uppercase">{project.date}</span>
+                                    <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">
+                                        {project.type}
+                                    </span>
                                 </td>
                                 <td className="px-8 py-6">
                                     <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
-                                        <button className="p-2 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white transition-colors" title="View Page">
-                                            <ExternalLink className="w-4 h-4" />
+                                        <button className="p-2 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white transition-colors">
+                                            <ExternalLink className="w-3.5 h-3.5" />
                                         </button>
-                                        <button className="p-2 hover:bg-white/10 rounded-lg text-slate-400 hover:text-cyan-400 transition-colors" title="Edit Content">
-                                            <Edit3 className="w-4 h-4" />
+                                        <button className="p-2 hover:bg-white/10 rounded-lg text-slate-400 hover:text-cyan-400 transition-colors">
+                                            <Edit3 className="w-3.5 h-3.5" />
                                         </button>
-                                        <button className="p-2 hover:bg-red-500/10 rounded-lg text-slate-600 hover:text-red-500 transition-colors" title="Delete Archive">
-                                            <Trash2 className="w-4 h-4" />
+                                        <button className="p-2 hover:bg-red-500/10 rounded-lg text-slate-600 hover:text-red-500 transition-colors">
+                                            <Trash2 className="w-3.5 h-3.5" />
                                         </button>
                                     </div>
                                 </td>

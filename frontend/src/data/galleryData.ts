@@ -1,9 +1,8 @@
-
 export interface GalleryItem {
   id: string;
   name: string;
   subtitle: string;
-  category: "PHOTOGRAPHY" | "CINEMATOGRAPHY" | "VFX / COLOR" | "CONTEMPORARY ART";
+  category: "PHOTOGRAPHY" | "CINEMATOGRAPHY" | "VFX" | "COLOR GRADING" | "CONTEMPORARY ART";
   image: string;
   large?: boolean; 
   type: "project" | "single";
@@ -51,7 +50,7 @@ export const GALLERY_DATA: GalleryItem[] = [
     id: "4",
     name: "CHROME DREAMS",
     subtitle: "VFX PROJECT",
-    category: "VFX / COLOR",
+    category: "VFX",
     image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&q=80",
     type: "project",
     date: "DEC 2023",
@@ -101,7 +100,7 @@ export const GALLERY_DATA: GalleryItem[] = [
     id: "8",
     name: "RETRO FUTURE",
     subtitle: "COLOR GRADE",
-    category: "VFX / COLOR",
+    category: "COLOR GRADING",
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80",
     type: "project",
     date: "AUG 2023",
@@ -135,7 +134,7 @@ export const GALLERY_DATA: GalleryItem[] = [
     id: "11",
     name: "PASTEL SKIES",
     subtitle: "LUT DEV",
-    category: "VFX / COLOR",
+    category: "COLOR GRADING",
     image: "https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?w=800&q=80",
     type: "single",
     date: "MAY 2023",

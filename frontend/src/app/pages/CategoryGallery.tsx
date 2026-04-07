@@ -7,13 +7,14 @@ import { GALLERY_DATA, GalleryItem } from '../../data/galleryData';
 import { ChevronRight, X, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const CATEGORIES = ["ALL", "PHOTOGRAPHY", "CINEMATOGRAPHY", "VFX / COLOR", "CONTEMPORARY ART"] as const;
+const CATEGORIES = ["ALL", "PHOTOGRAPHY", "CINEMATOGRAPHY", "VFX", "COLOR GRADING", "CONTEMPORARY ART"] as const;
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
 const CATEGORY_COLORS: Record<string, string> = {
     "PHOTOGRAPHY": "#38bdf8", // Cyan
     "CINEMATOGRAPHY": "#fbbf24", // Amber
-    "VFX / COLOR": "#a855f7", // Purple
+    "VFX": "#a855f7", // Purple
+    "COLOR GRADING": "#ec4899", // Pink
     "CONTEMPORARY ART": "#4ade80", // Green
     "ALL": "#ffffff"
 };
@@ -29,7 +30,8 @@ export function CategoryGallery() {
     // Sync state with URL param if it changes
     useEffect(() => {
         if (initialCategory) {
-            setSelectedCategory(initialCategory.toUpperCase().replace("-", " / "));
+            const formattedCategory = initialCategory.toUpperCase().replace("-", " ");
+            setSelectedCategory(formattedCategory);
         }
     }, [initialCategory]);
 

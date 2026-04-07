@@ -1,22 +1,20 @@
-
 import { motion } from 'motion/react';
 import { 
-    Users, 
     Layers, 
     Eye, 
     TrendingUp, 
-    Clock, 
     ArrowUpRight,
     Plus,
     Upload,
     MessageSquare,
+    ShoppingBag
 } from 'lucide-react';
 
 const STATS = [
-    { label: 'Total Projects', value: '32', change: '+4.2%', icon: Layers, color: 'text-cyan-500' },
-    { label: 'Page Views', value: '18.4K', change: '+12.5%', icon: Eye, color: 'text-purple-500' },
-    { label: 'Active Clients', value: '14', change: '+1', icon: Users, color: 'text-green-500' },
-    { label: 'Conversion', value: '3.4%', change: '-0.2%', icon: TrendingUp, color: 'text-red-500' },
+    { label: 'Total Projects', value: '32', icon: Layers, color: 'text-cyan-500' },
+    { label: 'Total Media', value: '1,248', icon: Eye, color: 'text-purple-500' },
+    { label: 'Products in Shop', value: '14', icon: ShoppingBag, color: 'text-green-500' },
+    { label: 'Recent Uploads', value: '124', icon: TrendingUp, color: 'text-white/40' },
 ];
 
 const RECENT_ACTIVITY = [
@@ -54,9 +52,6 @@ export function AdminDashboard() {
                         <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 rounded-full blur-3xl -mr-12 -mt-12 group-hover:bg-cyan-500/10 transition-colors" />
                         <div className="flex justify-between items-start relative z-10">
                             <stat.icon className={`w-6 h-6 ${stat.color} mb-4`} />
-                            <span className={`text-[10px] font-bold ${stat.change.startsWith('+') ? 'text-green-400' : 'text-red-400'}`}>
-                                {stat.change}
-                            </span>
                         </div>
                         <div className="flex flex-col relative z-10">
                             <span className="text-2xl font-bold text-white tracking-tighter">{stat.value}</span>
@@ -71,26 +66,32 @@ export function AdminDashboard() {
                 <div className="lg:col-span-1 flex flex-col gap-6">
                     <h3 className="text-xs font-bold tracking-widest uppercase text-white/40 border-b border-white/5 pb-4">Quick Control</h3>
                     <div className="grid grid-cols-1 gap-4">
-                        <button className="flex items-center justify-between p-5 bg-cyan-500 rounded-2xl text-black hover:scale-[1.02] active:scale-[0.98] transition-all group">
+                        <button 
+                            onClick={() => window.location.href = '/admin/upload'}
+                            className="flex items-center justify-between p-5 bg-cyan-500 rounded-2xl text-black hover:scale-[1.02] active:scale-[0.98] transition-all group shadow-[0_0_30px_rgba(6,182,212,0.3)]"
+                        >
                             <div className="flex flex-col items-start translate-x-0 group-hover:translate-x-2 transition-transform">
-                                <span className="text-xs font-black uppercase tracking-widest">New Project</span>
-                                <span className="text-[10px] font-bold opacity-60">Case-study dropdown</span>
+                                <span className="text-xs font-black uppercase tracking-widest leading-none">Upload Project</span>
+                                <span className="text-[10px] font-bold opacity-60 uppercase tracking-tight">Full Exhibition</span>
                             </div>
-                            <Plus className="w-6 h-6" />
+                            <Layers className="w-6 h-6 rotate-[-10deg] group-hover:rotate-0 transition-transform" />
                         </button>
-                        <button className="flex items-center justify-between p-5 bg-white/5 border border-white/10 rounded-2xl text-white hover:bg-white/10 transition-all group">
+                        <button 
+                            onClick={() => window.location.href = '/admin/upload'}
+                            className="flex items-center justify-between p-5 bg-white/5 border border-white/10 rounded-2xl text-white hover:bg-white/10 transition-all group"
+                        >
                             <div className="flex flex-col items-start translate-x-0 group-hover:translate-x-2 transition-transform">
-                                <span className="text-xs font-black uppercase tracking-widest">Upload Media</span>
-                                <span className="text-[10px] font-bold opacity-40">Photography / Film</span>
+                                <span className="text-xs font-black uppercase tracking-widest leading-none">Upload Single</span>
+                                <span className="text-[10px] font-bold opacity-30 uppercase tracking-tight">One Asset</span>
                             </div>
                             <Upload className="w-5 h-5 opacity-40 group-hover:opacity-100" />
                         </button>
                         <button className="flex items-center justify-between p-5 bg-white/5 border border-white/10 rounded-2xl text-white hover:bg-white/10 transition-all group">
                             <div className="flex flex-col items-start translate-x-0 group-hover:translate-x-2 transition-transform">
-                                <span className="text-xs font-black uppercase tracking-widest">Schedule Drop</span>
-                                <span className="text-[10px] font-bold opacity-40">System automation</span>
+                                <span className="text-xs font-black uppercase tracking-widest">Add Product</span>
+                                <span className="text-[10px] font-bold opacity-40">Shop manager</span>
                             </div>
-                            <Clock className="w-5 h-5 opacity-40 group-hover:opacity-100" />
+                            <ShoppingBag className="w-5 h-5 opacity-40 group-hover:opacity-100" />
                         </button>
                     </div>
                 </div>

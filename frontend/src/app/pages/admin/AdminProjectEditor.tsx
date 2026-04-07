@@ -8,39 +8,49 @@ import {
     Image as ImageIcon, 
     Type, 
     Film, 
-    Move, 
     Trash2, 
-    Copy, 
     Settings2,
     Layout,
-    Sparkles,
-    Check
+    Upload,
+    Link as LinkIcon,
+    GripVertical,
+    Globe
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
-type BlockType = 'image' | 'video' | 'text' | 'vfx';
+type BlockType = 'gallery' | 'video' | 'text';
 
 interface ContentBlock {
     id: string;
     type: BlockType;
-    content: any;
+    data: any;
 }
 
 export function AdminProjectEditor() {
     const { id } = useParams();
     const isNew = id === 'new';
     
-    const [blocks, setBlocks] = useState<ContentBlock[]>([
-        { id: '1', type: 'text', content: { text: "The project explores the intersection of nature and synthetic light..." } },
-        { id: '2', type: 'image', content: { url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop' } }
-    ]);
+    // State
+    const [title, setTitle] = useState('');
+    const [slug, setSlug] = useState('');
+    const [description, setDescription] = useState('');
+    const [category, setCategory] = useState('PHOTOGRAPHY');
+    const [status] = useState<'draft' | 'published'>('draft');
+    const [blocks, setBlocks] = useState<ContentBlock[]>([]);
+
+    // Auto-slug logic
+    useEffect(() => {
+        if (isNew && title) {
+            setSlug(title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]/g, ''));
+        }
+    }, [title, isNew]);
 
     const addBlock = (type: BlockType) => {
         const newBlock: ContentBlock = {
             id: Math.random().toString(36).substr(2, 9),
             type,
-            content: {}
+            data: type === 'gallery' ? [] : type === 'video' ? { url: '', type: 'link' } : { text: '' }
         };
         setBlocks([...blocks, newBlock]);
     };
@@ -50,198 +60,220 @@ export function AdminProjectEditor() {
     };
 
     return (
-        <div className="flex flex-col gap-10 max-w-5xl mx-auto">
-            {/* EDITOR HEADER */}
-            <div className="flex items-center justify-between sticky top-24 z-40 bg-[#050505]/80 backdrop-blur-md py-4 -mx-4 px-4 border-b border-white/5">
-                <div className="flex items-center gap-4">
+        <div className="flex flex-col gap-10 max-w-6xl mx-auto pb-24">
+            {/* STICKY HEADER */}
+            <div className="flex items-center justify-between sticky top-0 z-50 bg-black/80 backdrop-blur-3xl py-6 border-b border-white/5 -mx-4 px-8">
+                <div className="flex items-center gap-6">
                     <Link to="/admin/projects" className="p-2 hover:bg-white/5 rounded-full transition-all">
                         <ChevronLeft className="w-5 h-5 text-slate-400" />
                     </Link>
                     <div className="flex flex-col">
-                        <h1 className="text-xl font-bold tracking-tight text-white uppercase italic">
-                            {isNew ? 'New Project' : 'Edit Project'}
+                        <h1 className="text-2xl font-bold tracking-tighter text-white uppercase italic">
+                            {isNew ? 'New Exhibition' : 'Edit Exhibition'}
                         </h1>
-                        <p className="text-[10px] font-bold text-cyan-500 uppercase tracking-widest">
-                            {isNew ? 'Untitled / Creative Drafting' : `Draft / ${id}`}
-                        </p>
+                        <div className="flex items-center gap-2">
+                             <div className={`w-1.5 h-1.5 rounded-full ${status === 'published' ? 'bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]' : 'bg-white/20'}`} />
+                             <span className="text-[9px] font-bold text-white/40 uppercase tracking-[0.2em]">{status}</span>
+                        </div>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                    <button className="flex items-center gap-2 px-4 py-2 hover:bg-white/5 rounded-lg text-xs font-bold tracking-widest uppercase transition-all">
-                        <Eye className="w-4 h-4 opacity-50" /> Preview
+                <div className="flex items-center gap-4">
+                    <button className="flex items-center gap-2 px-6 py-3 bg-white/5 border border-white/10 rounded-xl text-[10px] font-bold tracking-widest uppercase hover:bg-white/10 transition-all">
+                        <Eye className="w-4 h-4 opacity-40" /> Preview
                     </button>
-                    <button className="flex items-center gap-2 px-6 py-2 bg-cyan-500 text-black rounded-lg text-xs font-black tracking-widest uppercase hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)]">
-                        <Save className="w-4 h-4" /> Save Changes
+                    <button className="flex items-center gap-3 px-8 py-3 bg-cyan-500 text-black rounded-xl text-[10px] font-black tracking-widest uppercase hover:scale-105 active:scale-95 transition-all shadow-[0_0_30px_rgba(6,182,212,0.4)]">
+                        <Save className="w-4 h-4" /> Save
                     </button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-                {/* LEFT COL: PROJECT METADATA */}
-                <div className="lg:col-span-1 space-y-8">
-                    <section className="space-y-6 bg-white/[0.02] border border-white/5 p-8 rounded-3xl">
-                        <h3 className="text-xs font-bold tracking-widest uppercase text-white/30 border-b border-white/5 pb-4 flex items-center gap-2">
-                            <Settings2 className="w-3.5 h-3.5" /> Project Config
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                {/* CONFIGURATION COLUMN */}
+                <div className="lg:col-span-1 space-y-10">
+                    <section className="space-y-6">
+                        <h3 className="text-[10px] font-black tracking-[0.4em] uppercase text-white/20 flex items-center gap-2">
+                            <Settings2 className="w-3.5 h-3.5" /> Identity
                         </h3>
                         
-                        <div className="space-y-4">
+                        <div className="space-y-6">
+                            <FormInput label="Project Title" placeholder="e.g. Nuit Noire" value={title} onChange={setTitle} />
+                            
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">Project Title</label>
-                                <input 
-                                    type="text" 
-                                    placeholder="Enter title..." 
-                                    className="w-full bg-black border border-white/10 rounded-xl py-3 px-4 text-sm font-medium focus:border-cyan-500 outline-none transition-all"
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">Slug (URL)</label>
-                                <div className="relative">
-                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 text-xs">/project/</span>
+                                <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 px-1">Slug (URL)</label>
+                                <div className="flex items-center bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3 group focus-within:border-cyan-500/50 transition-all">
+                                    <Globe className="w-3.5 h-3.5 text-slate-600 mr-2" />
+                                    <span className="text-slate-600 text-xs">/exhibition/</span>
                                     <input 
                                         type="text" 
-                                        placeholder="url-slug" 
-                                        className="w-full bg-black border border-white/10 rounded-xl py-3 pl-16 pr-4 text-sm font-medium focus:border-cyan-500 outline-none transition-all"
+                                        value={slug}
+                                        onChange={(e) => setSlug(e.target.value)}
+                                        className="bg-transparent border-none text-xs font-bold text-white outline-none flex-1 ml-1"
                                     />
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">Category</label>
-                                    <select className="w-full bg-black border border-white/10 rounded-xl py-3 px-4 text-xs font-bold uppercase tracking-widest focus:border-cyan-500 outline-none transition-all appearance-none cursor-pointer">
-                                        <option>Photography</option>
-                                        <option>Cinematography</option>
-                                        <option>VFX / Color</option>
-                                        <option>Contemporary Art</option>
-                                    </select>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">Status</label>
-                                    <div className="flex items-center gap-2 bg-black border border-white/10 rounded-xl p-1">
-                                        <button className="flex-1 py-2 text-[8px] font-black uppercase tracking-widest bg-cyan-500 text-black rounded-lg transition-all">Draft</button>
-                                        <button className="flex-1 py-2 text-[8px] font-black uppercase tracking-widest text-slate-500 hover:text-white transition-all">Live</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section className="bg-white/[0.02] border border-white/5 p-8 rounded-3xl group cursor-pointer hover:border-cyan-500/30 transition-all overflow-hidden relative">
-                        <div className="absolute inset-0 bg-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <h3 className="text-xs font-bold tracking-widest uppercase text-white/30 border-b border-white/5 pb-4 mb-6">Cover Image</h3>
-                        <div className="aspect-[4/5] bg-black border border-white/10 rounded-2xl flex flex-col items-center justify-center text-center p-6 gap-3 group-hover:scale-[1.02] transition-transform">
-                            <ImageIcon className="w-10 h-10 text-cyan-500/40" />
-                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Drag thumbnail here</span>
-                        </div>
-                    </section>
-                </div>
-
-                {/* RIGHT COL: LEGO BLOCK BUILDER */}
-                <div className="lg:col-span-2 space-y-8">
-                    <section className="bg-[#0a0a0a] border border-white/5 p-10 rounded-[40px] min-h-[600px] flex flex-col gap-8">
-                        <div className="flex items-center justify-between border-b border-white/5 pb-6">
-                            <h3 className="text-xs font-bold tracking-[0.3em] uppercase text-cyan-500 flex items-center gap-3">
-                                <Layout className="w-4 h-4" /> Content Architecture
-                            </h3>
-                            <div className="flex gap-2">
-                                <button className="p-2 bg-white/5 rounded-lg text-slate-400 hover:text-white transition-all">
-                                    <Move className="w-3.5 h-3.5" />
-                                </button>
-                                <button className="p-2 bg-white/5 rounded-lg text-slate-400 hover:text-white transition-all">
-                                    <Sparkles className="w-3.5 h-3.5" />
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* BLOCK LIST */}
-                        <div className="space-y-6">
-                            {blocks.map((block, index) => (
-                                <motion.div 
-                                    key={block.id}
-                                    layout
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className="group relative bg-white/[0.03] border border-white/5 rounded-2xl p-6 hover:border-cyan-500/30 transition-all"
-                                >
-                                    <div className="absolute -left-12 top-1/2 -translate-y-1/2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button className="p-2 hover:bg-white/10 rounded-lg text-slate-600 hover:text-white transition-colors cursor-grab">
-                                            <Move className="w-4 h-4" />
-                                        </button>
-                                    </div>
-
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-cyan-500/60">
-                                            {block.type === 'image' && <ImageIcon className="w-3.5 h-3.5" />}
-                                            {block.type === 'text' && <Type className="w-3.5 h-3.5" />}
-                                            {block.type === 'video' && <Film className="w-3.5 h-3.5" />}
-                                            {block.type} Block
-                                        </div>
-                                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button className="p-1.5 hover:bg-white/5 rounded text-slate-500 hover:text-white transition-colors">
-                                                <Copy className="w-3.5 h-3.5" />
-                                            </button>
-                                            <button 
-                                                onClick={() => removeBlock(block.id)}
-                                                className="p-1.5 hover:bg-red-500/10 rounded text-slate-500 hover:text-red-500 transition-colors"
-                                            >
-                                                <Trash2 className="w-3.5 h-3.5" />
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    {/* BLOCK CONTENT RENDERER (MOCK) */}
-                                    {block.type === 'text' && (
-                                        <textarea 
-                                            defaultValue={block.content.text}
-                                            className="w-full bg-transparent border-none text-slate-400 text-sm leading-relaxed focus:ring-0 resize-none h-24 p-0"
-                                        />
-                                    )}
-                                    {block.type === 'image' && (
-                                        <div className="relative aspect-video bg-black rounded-lg overflow-hidden border border-white/5">
-                                            <img src={block.content.url} alt="" className="w-full h-full object-cover opacity-50" />
-                                            <div className="absolute inset-0 flex items-center justify-center">
-                                                <button className="px-4 py-2 bg-white/10 backdrop-blur-md rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-white/20 transition-all">Change Asset</button>
-                                            </div>
-                                        </div>
-                                    )}
-                                </motion.div>
-                            ))}
-
-                            {/* EMPTY STATE / ADD BUTTONS */}
-                            <div className="flex flex-col items-center justify-center py-12 px-6 border-2 border-dashed border-white/5 rounded-3xl gap-6 mt-8">
-                                <div className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-600">Assemble Page</div>
-                                <div className="flex flex-wrap gap-3 justify-center">
-                                    {[
-                                        { type: 'image', icon: ImageIcon, label: 'Image' },
-                                        { type: 'text', icon: Type, label: 'Text' },
-                                        { type: 'video', icon: Film, label: 'Video' },
-                                        { type: 'vfx', icon: Sparkles, label: 'VFX / Comparison' }
-                                    ].map((btn) => (
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 px-1">Category</label>
+                                <div className="grid grid-cols-2 gap-2">
+                                    {['PHOTOGRAPHY', 'CINEMATOGRAPHY', 'VFX', 'ART'].map(cat => (
                                         <button 
-                                            key={btn.type}
-                                            onClick={() => addBlock(btn.type as BlockType)}
-                                            className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-cyan-500/10 hover:text-cyan-400 border border-white/5 hover:border-cyan-500/30 rounded-xl text-[10px] font-bold tracking-widest uppercase transition-all"
+                                            key={cat}
+                                            onClick={() => setCategory(cat)}
+                                            className={`py-2 rounded-lg text-[9px] font-bold tracking-widest border transition-all uppercase
+                                                ${category === cat ? 'bg-white text-black border-white' : 'bg-transparent border-white/5 text-white/40 hover:border-white/20'}
+                                            `}
                                         >
-                                            <btn.icon className="w-3.5 h-3.5" /> {btn.label}
+                                            {cat}
                                         </button>
                                     ))}
                                 </div>
                             </div>
+
+                            <FormInput label="Brief Narrative" isTextArea placeholder="Describe the vision..." value={description} onChange={setDescription} />
                         </div>
                     </section>
 
-                    <div className="flex justify-end gap-4 pb-20">
-                         <button className="flex items-center gap-2 px-8 py-4 border border-white/10 rounded-2xl text-xs font-bold tracking-widest uppercase hover:bg-white/5 transition-all">
-                            Save as Draft
-                        </button>
-                        <button className="flex items-center gap-2 px-8 py-4 bg-white text-black rounded-2xl text-xs font-black tracking-widest uppercase hover:scale-105 transition-all">
-                            Publish Exhibition
-                        </button>
-                    </div>
+                    <section className="space-y-4">
+                         <h3 className="text-[10px] font-black tracking-[0.4em] uppercase text-white/20">Cover Asset</h3>
+                         <div className="aspect-[4/5] bg-white/[0.02] border-2 border-dashed border-white/5 rounded-3xl group cursor-pointer hover:border-cyan-500/30 transition-all flex flex-col items-center justify-center p-8 text-center gap-4">
+                            <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center group-hover:scale-110 group-hover:bg-cyan-500 transition-all duration-500">
+                                <Upload className="w-5 h-5 text-white group-hover:text-black" />
+                            </div>
+                            <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Drop Master Thumbnail</span>
+                         </div>
+                    </section>
+                </div>
+
+                {/* BUILDER COLUMN */}
+                <div className="lg:col-span-2 space-y-12">
+                    <section className="bg-white/[0.01] border border-white/5 p-10 rounded-[40px] min-h-[500px] flex flex-col gap-10">
+                        <div className="flex items-center justify-between border-b border-white/5 pb-8">
+                             <div className="flex flex-col gap-1">
+                                <h3 className="text-[11px] font-black tracking-[0.3em] uppercase text-cyan-500">Exhibition Layout</h3>
+                                <p className="text-[9px] font-bold text-white/20 uppercase">Drag to reorder blocks</p>
+                             </div>
+                             <div className="flex gap-3">
+                                <AddBlockButton icon={ImageIcon} label="Gallery" onClick={() => addBlock('gallery')} />
+                                <AddBlockButton icon={Film} label="Video" onClick={() => addBlock('video')} />
+                                <AddBlockButton icon={Type} label="Text" onClick={() => addBlock('text')} />
+                             </div>
+                        </div>
+
+                        {/* BLOCK RENDERER */}
+                        <div className="space-y-8">
+                            <AnimatePresence>
+                                {blocks.map((block) => (
+                                    <motion.div 
+                                        key={block.id}
+                                        layout
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, scale: 0.95 }}
+                                        className="group relative bg-white/[0.01] border border-white/5 rounded-3xl p-8 hover:border-white/10 transition-all"
+                                    >
+                                        <div className="absolute -left-10 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-40 hover:opacity-100 transition-opacity cursor-grab">
+                                            <GripVertical className="w-5 h-5" />
+                                        </div>
+
+                                        <div className="flex items-center justify-between mb-8">
+                                             <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-cyan-500">
+                                                    {block.type === 'gallery' && <ImageIcon className="w-4 h-4" />}
+                                                    {block.type === 'video' && <Film className="w-4 h-4" />}
+                                                    {block.type === 'text' && <Type className="w-4 h-4" />}
+                                                </div>
+                                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">{block.type} BLOCK</span>
+                                             </div>
+                                             <button 
+                                                onClick={() => removeBlock(block.id)}
+                                                className="p-2 hover:bg-red-500/10 rounded-lg text-slate-600 hover:text-red-500 transition-all"
+                                             >
+                                                <Trash2 className="w-4 h-4" />
+                                             </button>
+                                        </div>
+
+                                        {/* BLOCK CONTENT */}
+                                        {block.type === 'text' && (
+                                            <textarea 
+                                                placeholder="Write narrative..."
+                                                className="w-full bg-transparent border-none text-white/60 text-base leading-relaxed focus:ring-0 resize-none h-32 p-0 placeholder:text-white/10"
+                                            />
+                                        )}
+
+                                        {block.type === 'video' && (
+                                            <div className="space-y-4">
+                                                <div className="flex items-center bg-black border border-white/10 rounded-2xl p-4 gap-4">
+                                                     <LinkIcon className="w-5 h-5 text-white/20" />
+                                                     <input 
+                                                        type="text" 
+                                                        placeholder="Vimeo or YouTube Link..." 
+                                                        className="bg-transparent border-none text-sm font-medium text-white flex-1 outline-none"
+                                                     />
+                                                </div>
+                                                <div className="aspect-video bg-black rounded-2xl flex items-center justify-center border border-white/5">
+                                                     <Film className="w-12 h-12 text-white/5" />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {block.type === 'gallery' && (
+                                            <div className="grid grid-cols-3 gap-4">
+                                                <div className="aspect-[4/5] bg-black rounded-xl border border-dashed border-white/10 flex flex-col items-center justify-center gap-2 group/add cursor-pointer hover:border-cyan-500/40 transition-all">
+                                                     <Plus className="w-6 h-6 text-white/10 group-hover/add:text-cyan-500" />
+                                                     <span className="text-[8px] font-bold uppercase tracking-widest text-white/10 group-hover/add:text-cyan-500">Add Item</span>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </motion.div>
+                                ))}
+                            </AnimatePresence>
+
+                            {blocks.length === 0 && (
+                                <div className="h-[300px] flex flex-col items-center justify-center border-2 border-dashed border-white/5 rounded-[40px] gap-4 opacity-20">
+                                     <Layout className="w-10 h-10" />
+                                     <span className="text-xs font-bold tracking-[0.4em] uppercase">Architecture Empty</span>
+                                </div>
+                            )}
+                        </div>
+                    </section>
                 </div>
             </div>
+        </div>
+    );
+}
+
+function AddBlockButton({ icon: Icon, label, onClick }: any) {
+    return (
+        <button 
+            onClick={onClick}
+            className="flex items-center gap-3 px-4 py-2 hover:bg-white/5 border border-white/10 rounded-xl text-[9px] font-bold tracking-widest uppercase transition-all hover:scale-105 active:scale-95"
+        >
+            <Icon className="w-3.5 h-3.5 text-cyan-500" /> {label}
+        </button>
+    );
+}
+
+function FormInput({ label, placeholder, isTextArea = false, value, onChange }: any) {
+    return (
+        <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 px-1">{label}</label>
+            {isTextArea ? (
+                <textarea 
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    placeholder={placeholder}
+                    className="w-full bg-white/[0.02] border border-white/10 rounded-xl py-4 px-5 text-sm font-medium focus:border-cyan-500 outline-none transition-all placeholder:text-white/10 min-h-[120px]"
+                />
+            ) : (
+                <input 
+                    type="text"
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    placeholder={placeholder}
+                    className="w-full bg-white/[0.02] border border-white/10 rounded-xl py-4 px-5 text-sm font-medium focus:border-cyan-500 outline-none transition-all placeholder:text-white/10"
+                />
+            )}
         </div>
     );
 }
