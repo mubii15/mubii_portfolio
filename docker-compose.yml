@@ -1,0 +1,60 @@
+version: "3.9"
+
+services:
+  db:
+    image: mysql:8.0
+    platform: linux/amd64
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: portfolio_db
+      MYSQL_USER: mubii
+      MYSQL_PASSWORD: mubii123
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./db_init:/docker-entrypoint-initdb.d
+
+  backend:
+    build: ./backend
+    restart: always
+    ports:
+      - "8080:80"
+    volumes:
+      - ./backend:/var/www/html
+    environment:
+      DB_HOST: db
+      DB_USER: mubii
+      DB_PASS: mubii123
+      DB_NAME: portfolio_db
+    depends_on:
+      - db
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8000:8080"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      VITE_API_URL: http://localhost:8080
+    depends_on:
+      - backend
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    platform: linux/amd64
+    restart: always
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: root
+    depends_on:
+      - db
+
+volumes:
+  db_data:

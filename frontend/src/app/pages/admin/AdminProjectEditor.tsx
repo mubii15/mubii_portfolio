@@ -17,7 +17,9 @@ import {
     Globe
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
 type BlockType = 'gallery' | 'video' | 'text';
 
@@ -29,6 +31,7 @@ interface ContentBlock {
 
 export function AdminProjectEditor() {
     const { id } = useParams();
+    const navigate = useNavigate();
     const isNew = id === 'new';
     
     // State
@@ -36,8 +39,29 @@ export function AdminProjectEditor() {
     const [slug, setSlug] = useState('');
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState('PHOTOGRAPHY');
-    const [status] = useState<'draft' | 'published'>('draft');
+    const [status, setStatus] = useState<'draft' | 'published'>('draft');
+    const [coverAsset, setCoverAsset] = useState<string>('');
     const [blocks, setBlocks] = useState<ContentBlock[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        if (!isNew) {
+            fetch(`${API_URL}/api/projects?id=${id}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.error) {
+                        setTitle(data.title || '');
+                        setSlug(data.slug || '');
+                        setDescription(data.description || '');
+                        setCategory(data.category || 'PHOTOGRAPHY');
+                        setStatus(data.status || 'draft');
+                        setCoverAsset(data.cover_asset || '');
+                        setBlocks(data.blocks || []);
+                    }
+                })
+                .catch(err => console.error("Fetch error:", err));
+        }
+    }, [id, isNew]);
 
     // Auto-slug logic
     useEffect(() => {
@@ -45,6 +69,48 @@ export function AdminProjectEditor() {
             setSlug(title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]/g, ''));
         }
     }, [title, isNew]);
+
+    const handleFileUpload = async (file: File) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        try {
+            const response = await fetch(`${API_URL}/api/upload`, {
+                method: 'POST',
+                body: formData,
+            });
+            const data = await response.json();
+            if (data.success) return data.url;
+        } catch (error) {
+            console.error('Upload failed:', error);
+        }
+        return null;
+    };
+
+    const handleSave = async () => {
+        setIsLoading(true);
+        const projectData = { title, slug, description, category, status, cover_asset: coverAsset, blocks };
+        const method = isNew ? 'POST' : 'PUT';
+        const url = isNew ? `${API_URL}/api/projects` : `${API_URL}/api/projects?id=${id}`;
+
+        try {
+            const response = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(projectData)
+            });
+            const data = await response.json();
+            if (data.success) {
+                if (isNew) navigate(`/admin/projects/${data.id}`);
+            } else {
+                alert('Failed to save project');
+            }
+        } catch (error) {
+            console.error('Save error:', error);
+            alert('Failed to save project');
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const addBlock = (type: BlockType) => {
         const newBlock: ContentBlock = {
@@ -82,8 +148,12 @@ export function AdminProjectEditor() {
                     <button className="flex items-center gap-2 px-6 py-3 bg-white/5 border border-white/10 rounded-xl text-[10px] font-bold tracking-widest uppercase hover:bg-white/10 transition-all">
                         <Eye className="w-4 h-4 opacity-40" /> Preview
                     </button>
-                    <button className="flex items-center gap-3 px-8 py-3 bg-cyan-500 text-black rounded-xl text-[10px] font-black tracking-widest uppercase hover:scale-105 active:scale-95 transition-all shadow-[0_0_30px_rgba(6,182,212,0.4)]">
-                        <Save className="w-4 h-4" /> Save
+                    <button 
+                        onClick={handleSave}
+                        disabled={isLoading}
+                        className="flex items-center gap-3 px-8 py-3 bg-cyan-500 text-black rounded-xl text-[10px] font-black tracking-widest uppercase hover:scale-105 active:scale-95 transition-all shadow-[0_0_30px_rgba(6,182,212,0.4)] disabled:opacity-50 disabled:grayscale disabled:hover:scale-100"
+                    >
+                        <Save className="w-4 h-4" /> {isLoading ? 'Saving...' : 'Save'}
                     </button>
                 </div>
             </div>
@@ -136,11 +206,27 @@ export function AdminProjectEditor() {
 
                     <section className="space-y-4">
                          <h3 className="text-[10px] font-black tracking-[0.4em] uppercase text-white/20">Cover Asset</h3>
-                         <div className="aspect-[4/5] bg-white/[0.02] border-2 border-dashed border-white/5 rounded-3xl group cursor-pointer hover:border-cyan-500/30 transition-all flex flex-col items-center justify-center p-8 text-center gap-4">
-                            <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center group-hover:scale-110 group-hover:bg-cyan-500 transition-all duration-500">
-                                <Upload className="w-5 h-5 text-white group-hover:text-black" />
-                            </div>
-                            <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Drop Master Thumbnail</span>
+                         <div className="relative aspect-[4/5] bg-white/[0.02] border-2 border-dashed border-white/5 rounded-3xl group hover:border-cyan-500/30 transition-all flex flex-col items-center justify-center p-8 text-center overflow-hidden">
+                             {coverAsset ? (
+                                <img src={coverAsset} className="absolute inset-0 w-full h-full object-cover" alt="Cover" />
+                             ) : (
+                                <>
+                                    <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center group-hover:scale-110 group-hover:bg-cyan-500 transition-all duration-500 mb-4 z-10 pointer-events-none">
+                                        <Upload className="w-5 h-5 text-white group-hover:text-black" />
+                                    </div>
+                                    <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500 z-10 pointer-events-none">Drop Master Thumbnail</span>
+                                </>
+                             )}
+                             <input 
+                                type="file" 
+                                className="absolute inset-0 opacity-0 cursor-pointer z-20"
+                                onChange={async (e) => {
+                                    if (e.target.files?.[0]) {
+                                        const url = await handleFileUpload(e.target.files[0]);
+                                        if (url) setCoverAsset(url);
+                                    }
+                                }}
+                             />
                          </div>
                     </section>
                 </div>
@@ -196,8 +282,15 @@ export function AdminProjectEditor() {
                                         {/* BLOCK CONTENT */}
                                         {block.type === 'text' && (
                                             <textarea 
+                                                value={block.data?.text || ''}
+                                                onChange={(e) => {
+                                                    const newBlocks = [...blocks];
+                                                    const idx = newBlocks.findIndex(b => b.id === block.id);
+                                                    if (idx !== -1) newBlocks[idx].data = { text: e.target.value };
+                                                    setBlocks(newBlocks);
+                                                }}
                                                 placeholder="Write narrative..."
-                                                className="w-full bg-transparent border-none text-white/60 text-base leading-relaxed focus:ring-0 resize-none h-32 p-0 placeholder:text-white/10"
+                                                className="w-full bg-transparent border-none text-white/60 text-base leading-relaxed focus:ring-0 resize-none h-32 p-0 placeholder:text-white/10 outline-none"
                                             />
                                         )}
 
@@ -207,24 +300,72 @@ export function AdminProjectEditor() {
                                                      <LinkIcon className="w-5 h-5 text-white/20" />
                                                      <input 
                                                         type="text" 
+                                                        value={block.data?.url || ''}
+                                                        onChange={(e) => {
+                                                            const newBlocks = [...blocks];
+                                                            const idx = newBlocks.findIndex(b => b.id === block.id);
+                                                            if (idx !== -1) newBlocks[idx].data = { url: e.target.value, type: 'link' };
+                                                            setBlocks(newBlocks);
+                                                        }}
                                                         placeholder="Vimeo or YouTube Link..." 
                                                         className="bg-transparent border-none text-sm font-medium text-white flex-1 outline-none"
                                                      />
                                                 </div>
-                                                <div className="aspect-video bg-black rounded-2xl flex items-center justify-center border border-white/5">
-                                                     <Film className="w-12 h-12 text-white/5" />
+                                                <div className="aspect-video bg-black rounded-2xl flex items-center justify-center border border-white/5 relative overflow-hidden">
+                                                    {block.data?.url ? (
+                                                        <span className="text-white/40 text-xs truncate max-w-[80%] absolute">{block.data.url}</span>
+                                                    ) : (
+                                                        <Film className="w-12 h-12 text-white/5" />
+                                                    )}
                                                 </div>
                                             </div>
                                         )}
 
                                         {block.type === 'gallery' && (
                                             <div className="grid grid-cols-3 gap-4">
-                                                <div className="aspect-[4/5] bg-black rounded-xl border border-dashed border-white/10 flex flex-col items-center justify-center gap-2 group/add cursor-pointer hover:border-cyan-500/40 transition-all">
-                                                     <Plus className="w-6 h-6 text-white/10 group-hover/add:text-cyan-500" />
-                                                     <span className="text-[8px] font-bold uppercase tracking-widest text-white/10 group-hover/add:text-cyan-500">Add Item</span>
+                                                {(block.data || []).map((imgUrl: string, i: number) => (
+                                                    <div key={i} className="aspect-[4/5] bg-black rounded-xl border border-white/10 overflow-hidden relative group/img">
+                                                        <img src={imgUrl} className="w-full h-full object-cover" />
+                                                        <button 
+                                                            onClick={() => {
+                                                                const newBlocks = [...blocks];
+                                                                const idx = newBlocks.findIndex(b => b.id === block.id);
+                                                                if (idx !== -1) {
+                                                                    newBlocks[idx].data = (newBlocks[idx].data || []).filter((_: any, index: number) => index !== i);
+                                                                    setBlocks(newBlocks);
+                                                                }
+                                                            }}
+                                                            className="absolute top-2 right-2 p-1.5 bg-black/60 hover:bg-red-500 rounded-lg text-white opacity-0 group-hover/img:opacity-100 transition-all"
+                                                        >
+                                                            <Trash2 className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                                <div className="aspect-[4/5] bg-black rounded-xl border border-dashed border-white/10 flex flex-col items-center justify-center gap-2 group/add relative hover:border-cyan-500/40 transition-all overflow-hidden">
+                                                     <Plus className="w-6 h-6 text-white/10 group-hover/add:text-cyan-500 pointer-events-none" />
+                                                     <span className="text-[8px] font-bold uppercase tracking-widest text-white/10 group-hover/add:text-cyan-500 pointer-events-none">Add Item</span>
+                                                     <input 
+                                                        type="file" 
+                                                        className="absolute inset-0 opacity-0 cursor-pointer"
+                                                        onChange={async (e) => {
+                                                            if (e.target.files?.[0]) {
+                                                                const url = await handleFileUpload(e.target.files[0]);
+                                                                if (url) {
+                                                                    const newBlocks = [...blocks];
+                                                                    const idx = newBlocks.findIndex(b => b.id === block.id);
+                                                                    if (idx !== -1) {
+                                                                        const currentData = Array.isArray(newBlocks[idx].data) ? newBlocks[idx].data : [];
+                                                                        newBlocks[idx].data = [...currentData, url];
+                                                                        setBlocks(newBlocks);
+                                                                    }
+                                                                }
+                                                            }
+                                                        }}
+                                                     />
                                                 </div>
                                             </div>
                                         )}
+
                                     </motion.div>
                                 ))}
                             </AnimatePresence>

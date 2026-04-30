@@ -3,11 +3,27 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+export interface CategoryItem {
+    id: number;
+    title: string;
+    item_type: string;
+    description: string;
+    cover_asset: string;
+    created_at: string;
+    date?: string;
+}
+
+export interface CategoryData {
+    name: string;
+    items: CategoryItem[];
+}
+
 interface FanOutStackProps {
     images: string[];
     variant?: 'fan' | 'collapsed' | 'grid';
     onIndexSelect?: (index: number | null) => void;
     selectedIndex?: number | null;
+    categoryData?: CategoryData[];
 }
 
 const METADATA_BY_CATEGORY = [
@@ -57,7 +73,7 @@ const METADATA_BY_CATEGORY = [
     }
 ];
 
-export function FanOutStack({ images, variant = 'fan', onIndexSelect, selectedIndex: controlledIndex }: FanOutStackProps) {
+export function FanOutStack({ images, variant = 'fan', onIndexSelect, selectedIndex: controlledIndex, categoryData = [] }: FanOutStackProps) {
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
     const [localSelectedIndex, setLocalSelectedIndex] = useState<number | null>(null);
     const [activeDetailIndex, setActiveDetailIndex] = useState(0);
@@ -184,9 +200,9 @@ export function FanOutStack({ images, variant = 'fan', onIndexSelect, selectedIn
     // Handle reel scroll to update active metadata
     const handleReelScroll = (e: React.UIEvent<HTMLDivElement>) => {
         const scrollTop = e.currentTarget.scrollTop;
-        // Approximation of item height + gap
-        const itemHeight = e.currentTarget.scrollHeight / 6.8; 
-        const newIndex = Math.min(Math.round(scrollTop / itemHeight), 5);
+        const catCount = selectedIndex !== null ? Math.max(1, (categoryData[selectedIndex]?.items?.length ?? 1)) : 1;
+        const itemHeight = e.currentTarget.scrollHeight / (catCount + 0.2);
+        const newIndex = Math.min(Math.round(scrollTop / itemHeight), catCount - 1);
         if (newIndex !== activeDetailIndex) {
             setActiveDetailIndex(newIndex);
         }
@@ -249,9 +265,8 @@ export function FanOutStack({ images, variant = 'fan', onIndexSelect, selectedIn
                             <div 
                                 className="absolute pointer-events-none z-20 overflow-hidden"
                                 style={{
-                                // Positioned to the side of the reel on desktop (flips if reel is near edge)
                                 top: isMobile ? 'auto' : '50%',
-                                bottom: isMobile ? '120px' : 'auto', // Pushed up on mobile to avoid 'See More'
+                                bottom: isMobile ? '120px' : 'auto',
                                 transform: isMobile ? 'none' : 'translateY(-50%)',
                                 left: isMobile 
                                     ? '5vw' 
@@ -273,51 +288,63 @@ export function FanOutStack({ images, variant = 'fan', onIndexSelect, selectedIn
                                 }}
                             >
                                 <AnimatePresence mode="wait">
-                                        <motion.div
-                                            key={`${selectedIndex}-${activeDetailIndex}`}
-                                            initial={{ opacity: 0, y: 30 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: -30 }}
-                                            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                                            className={`flex flex-col gap-4 md:gap-6 w-full ${isMobile ? 'bg-black/40 backdrop-blur-md p-6 rounded-2xl' : ''}`}
-                                            style={{ 
-                                                alignItems: isMobile 
-                                                    ? 'center' 
-                                                    : (selectedIndex ?? 0) < images.length / 2 ? 'flex-start' : 'flex-end'
-                                            }}
-                                        >
-                                        <div className="flex flex-col gap-1 md:gap-2">
-                                            <motion.div 
-                                                initial={{ opacity: 0 }}
-                                                animate={{ opacity: 0.5 }}
-                                                className="text-[10px] md:text-xs tracking-[0.4em] font-bold uppercase"
+                                    {(() => {
+                                        const catData = categoryData[selectedIndex];
+                                        const item = catData?.items[activeDetailIndex];
+                                        if (!item) return null;
+                                        const formattedDate = item.date
+                                            ? new Date(item.date).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }).toUpperCase()
+                                            : item.created_at
+                                                ? new Date(item.created_at).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }).toUpperCase()
+                                                : '';
+                                        return (
+                                            <motion.div
+                                                key={`${selectedIndex}-${activeDetailIndex}`}
+                                                initial={{ opacity: 0, y: 30 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -30 }}
+                                                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                                                className={`flex flex-col gap-4 md:gap-6 w-full ${isMobile ? 'bg-black/40 backdrop-blur-md p-6 rounded-2xl' : ''}`}
+                                                style={{ 
+                                                    alignItems: isMobile 
+                                                        ? 'center' 
+                                                        : (selectedIndex ?? 0) < images.length / 2 ? 'flex-start' : 'flex-end'
+                                                }}
                                             >
-                                                {METADATA_BY_CATEGORY[selectedIndex]?.items[activeDetailIndex]?.type} • {METADATA_BY_CATEGORY[selectedIndex]?.items[activeDetailIndex]?.date}
-                                            </motion.div>
-                                            <motion.h2 
-                                                className="text-2xl md:text-5xl font-bold tracking-tighter leading-none"
-                                            >
-                                                {METADATA_BY_CATEGORY[selectedIndex]?.items[activeDetailIndex]?.title.split('').map((char, i) => (
-                                                    <motion.span
-                                                        key={i}
-                                                        initial={{ opacity: 0, y: 20 }}
-                                                        animate={{ opacity: 1, y: 0 }}
-                                                        transition={{ delay: i * 0.02 + 0.1, duration: 0.5 }}
+                                                <div className="flex flex-col gap-1 md:gap-2">
+                                                    <motion.div 
+                                                        initial={{ opacity: 0 }}
+                                                        animate={{ opacity: 0.5 }}
+                                                        className="text-[10px] md:text-xs tracking-[0.4em] font-bold uppercase"
                                                     >
-                                                        {char}
-                                                    </motion.span>
-                                                ))}
-                                            </motion.h2>
-                                        </div>
-                                        <motion.p 
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 0.6 }}
-                                            transition={{ delay: 0.4 }}
-                                            className="text-xs md:text-sm tracking-wide leading-relaxed max-w-[400px] ml-auto"
-                                        >
-                                            {METADATA_BY_CATEGORY[selectedIndex]?.items[activeDetailIndex]?.desc}
-                                        </motion.p>
-                                    </motion.div>
+                                                        {item.item_type.toUpperCase()} • {formattedDate}
+                                                    </motion.div>
+                                                    <motion.h2 className="text-2xl md:text-5xl font-bold tracking-tighter leading-none">
+                                                        {item.title.split('').map((char, i) => (
+                                                            <motion.span
+                                                                key={i}
+                                                                initial={{ opacity: 0, y: 20 }}
+                                                                animate={{ opacity: 1, y: 0 }}
+                                                                transition={{ delay: i * 0.02 + 0.1, duration: 0.5 }}
+                                                            >
+                                                                {char}
+                                                            </motion.span>
+                                                        ))}
+                                                    </motion.h2>
+                                                </div>
+                                                {item.description && (
+                                                    <motion.p 
+                                                        initial={{ opacity: 0 }}
+                                                        animate={{ opacity: 0.6 }}
+                                                        transition={{ delay: 0.4 }}
+                                                        className="text-xs md:text-sm tracking-wide leading-relaxed max-w-[400px]"
+                                                    >
+                                                        {item.description}
+                                                    </motion.p>
+                                                )}
+                                            </motion.div>
+                                        );
+                                    })()}
                                 </AnimatePresence>
                             </div>
                         )}
@@ -333,35 +360,28 @@ export function FanOutStack({ images, variant = 'fan', onIndexSelect, selectedIn
                                     ? '10vw'
                                     : `calc(50% + ${(selectedIndex - center) * 24.5}vw - 12vw)`
                             }}
-                            initial={{ y: 0, opacity: 0 }} // Start in place
+                            initial={{ y: 0, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
-                            exit={{ y: 0, opacity: 0 }} // Fade out in place
+                            exit={{ y: 0, opacity: 0 }}
                         >
-                            {/* Vertical Column of Images */}
                             <div className="flex flex-col gap-8 w-full">
-                                {/* The "Header" item (same as the thumbnail) */}
-                                <div className="w-full aspect-[400/650] bg-gray-900 shadow-2xl border border-white/10 shrink-0">
-                                    <img
-                                        src={images[selectedIndex]}
-                                        className="w-full h-full object-cover"
-                                        alt="Current"
-                                    />
-                                </div>
-
-                                {/* Additional Items in the Reel */}
-                                {[1, 2, 3, 4, 5].map((item) => (
-                                    <div key={item} className="w-full aspect-[400/650] bg-gray-900 shadow-2xl border border-white/10 shrink-0">
-                                        <img
-                                            // Using same images for demo, cycled
-                                            src={images[(selectedIndex + item) % images.length]}
-                                            className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity"
-                                            alt="Detail"
-                                        />
-
-                                    </div>
-                                ))}
-
-                                {/* Spacer at bottom */}
+                                {/* Show the 3 most recent items in this category */}
+                                {(() => {
+                                    const catItems = categoryData[selectedIndex]?.items ?? [];
+                                    const reelImages = catItems.length > 0
+                                        ? catItems.slice(0, 3).map(it => it.cover_asset)
+                                        : [images[selectedIndex]];
+                                    return reelImages.map((src, item) => (
+                                        <div key={item} className="w-full aspect-[400/650] bg-gray-900 shadow-2xl border border-white/10 shrink-0">
+                                            <img
+                                                src={src}
+                                                loading="lazy"
+                                                className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity"
+                                                alt=""
+                                            />
+                                        </div>
+                                    ));
+                                })()}
                                 <div className="h-[20vh] shrink-0"></div>
                             </div>
                         </motion.div>
@@ -390,6 +410,7 @@ export function FanOutStack({ images, variant = 'fan', onIndexSelect, selectedIn
                                 <div className="relative w-full h-full overflow-hidden rounded-xl shadow-2xl bg-gray-900 border border-white/10">
                                     <img
                                         src={src}
+                                        loading="lazy"
                                         alt={`Portfolio item ${index + 1}`}
                                         className="w-full h-full object-cover"
                                     />
@@ -460,6 +481,7 @@ export function FanOutStack({ images, variant = 'fan', onIndexSelect, selectedIn
                                     `}>
                                         <img
                                             src={src}
+                                            loading="lazy"
                                             alt={`Portfolio item ${index + 1}`}
                                             className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity duration-500"
                                         />

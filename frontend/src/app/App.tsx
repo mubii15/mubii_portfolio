@@ -15,6 +15,7 @@ const ContemporaryArt = lazy(() => import('./pages/ContemporaryArt').then(module
 const About = lazy(() => import('./pages/About').then(module => ({ default: module.About })));
 const CategoryGallery = lazy(() => import('./pages/CategoryGallery').then(module => ({ default: module.CategoryGallery })));
 const ProjectDetail = lazy(() => import('./pages/ProjectDetail').then(module => ({ default: module.ProjectDetail })));
+const Contact = lazy(() => import('./pages/Contact').then(module => ({ default: module.Contact })));
 
 // Admin lazy loading
 const AdminLayout = lazy(() => import('./components/admin/AdminLayout').then(module => ({ default: module.AdminLayout })));
@@ -96,6 +97,14 @@ function AnimatedRoutes() {
             element={
               <PageTransition>
                 <About />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/contact"
+            element={
+              <PageTransition>
+                <Contact />
               </PageTransition>
             }
           />
