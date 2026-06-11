@@ -14,24 +14,35 @@ export function Preloader({ onComplete }: PreloaderProps) {
     const steps = duration / intervalTime;
     const increment = 100 / steps;
 
+    let isLoaded = document.readyState === 'complete';
+    let minTimePassed = false;
+
+    // Listen for window load
+    const handleLoad = () => { isLoaded = true; checkComplete(); };
+    window.addEventListener('load', handleLoad);
+
+    const checkComplete = () => {
+      if (isLoaded && minTimePassed) {
+        onComplete();
+      }
+    };
+
     const timer = setInterval(() => {
       setCount((prev) => {
         const next = prev + increment;
         if (next >= 100) {
           clearInterval(timer);
+          minTimePassed = true;
+          checkComplete();
           return 100;
         }
         return next;
       });
     }, intervalTime);
 
-    const completeTimer = setTimeout(() => {
-      onComplete();
-    }, duration + 500);
-
     return () => {
       clearInterval(timer);
-      clearTimeout(completeTimer);
+      window.removeEventListener('load', handleLoad);
     };
   }, [onComplete]);
 

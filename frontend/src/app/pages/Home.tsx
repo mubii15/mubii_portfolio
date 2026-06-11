@@ -1,17 +1,60 @@
-
 import { motion, useScroll, useTransform, useMotionValueEvent } from 'motion/react';
 import { FanOutStack } from '../components/FanOutStack';
-import { useState, useRef } from 'react';
+import type { CategoryData } from '../components/FanOutStack';
+import { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
+import axios from 'axios';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
-// Import images
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+const CATEGORY_KEYS = ['PHOTOGRAPHY', 'CINEMATOGRAPHY', 'VFX', 'CONTEMPORARY ART'];
+
+// Fallback placeholder for categories with no thumbnail set
 import img1 from '../../assets/images/img1.png';
 import img2 from '../../assets/images/img2.png';
 import img3 from '../../assets/images/img3.png';
 import img4 from '../../assets/images/img4.png';
+const FALLBACKS = [img1, img2, img3, img4];
 
 export function Home() {
-  const portfolioImages = [img1, img2, img3, img4];
+  useDocumentTitle('Home');
+  const [portfolioImages, setPortfolioImages] = useState<string[]>(FALLBACKS);
+  const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Fetch thumbnails for stack images
+    axios.get(`${API_URL}/api/thumbnails`)
+      .then(({ data }) => {
+        if (Array.isArray(data) && data.length > 0) {
+          const imgs = CATEGORY_KEYS.map((cat, i) => {
+            const thumb = data.find((t: any) => t.category === cat || t.category === cat.replace(' / COLOR', ''));
+            return thumb?.cropped_url || FALLBACKS[i];
+          });
+          setPortfolioImages(imgs);
+        }
+      })
+      .catch(() => {});
+
+    // Fetch 3 most recent items per category for the detail reel
+    axios.get(`${API_URL}/api/projects`)
+      .then(({ data }) => {
+        if (!Array.isArray(data)) return;
+        const published = data.filter((p: any) => p.status === 'published');
+        const built: CategoryData[] = CATEGORY_KEYS.map(cat => {
+          const catKey = cat === 'VFX' ? 'VFX' : cat;
+          const categoryProjects = published.filter((p: any) => p.category === catKey);
+
+          // Shuffle and take 5 random projects/singles
+          const shuffled = categoryProjects.sort(() => Math.random() - 0.5).slice(0, 5);
+          
+          return { name: cat, items: shuffled };
+        });
+        setCategoryData(built);
+      })
+      .catch(() => {});
+  }, []);
 
   // Track scroll progress
   const { scrollY } = useScroll();
@@ -49,10 +92,39 @@ export function Home() {
   return (
     <div ref={containerRef} className="relative bg-black text-white min-h-[250vh]">
 
-      {/* Background Gradients (Fixed) */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] bg-purple-900/10 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-blue-900/10 rounded-full blur-[120px]" />
+      {/* Background Gradients & Lava Lamp Effect (Fixed) */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] bg-blue-900/10 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-cyan-900/5 rounded-full blur-[120px]" />
+        
+        {/* LAVA LAMP CIRCLES */}
+        <motion.div 
+          animate={{
+            x: [0, 100, -50, 0],
+            y: [0, -150, 50, 0],
+            scale: [1, 1.2, 0.8, 1],
+          }}
+          transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -bottom-[10%] -left-[10%] w-[60vw] h-[60vw] bg-white/[0.07] rounded-full blur-[120px]" 
+        />
+        <motion.div 
+          animate={{
+            x: [0, -80, 120, 0],
+            y: [0, -100, 100, 0],
+            scale: [1, 0.9, 1.1, 1],
+          }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+          className="absolute -bottom-[20%] right-[10%] w-[45vw] h-[45vw] bg-white/[0.05] rounded-full blur-[100px]" 
+        />
+        <motion.div 
+          animate={{
+            x: [0, 50, -100, 0],
+            y: [0, -200, 50, 0],
+            opacity: [0.03, 0.08, 0.03]
+          }}
+          transition={{ duration: 30, repeat: Infinity, ease: "easeInOut", delay: 5 }}
+          className="absolute -bottom-[15%] left-[30%] w-[70vw] h-[70vw] bg-white/5 rounded-full blur-[150px]" 
+        />
       </div>
 
       {/* Main Sticky Content Container - Images */}
@@ -73,6 +145,7 @@ export function Home() {
             variant={variant}
             selectedIndex={selectedCategoryIndex}
             onIndexSelect={setSelectedCategoryIndex}
+            categoryData={categoryData}
           />
         </motion.div>
 
@@ -143,16 +216,28 @@ export function Home() {
 
         {/* Gallery Text Section */}
         {/* Adjusted padding top to ensure it doesn't overlap prematurely */}
-        <div className="relative h-screen flex flex-col justify-end pb-8 md:pb-12 pointer-events-none">
+        <div className="relative h-screen flex flex-col justify-end pb-16 md:pb-24 pointer-events-none">
           <motion.div
             style={{ opacity: galleryOpacity, y: galleryY }}
-            className="border-t border-white/10 pt-4 flex items-end justify-between transition-all duration-500"
+            className="border-t border-white/10 pt-4 flex flex-col gap-12 transition-all duration-500"
           >
-            <div className="text-[12vw] md:text-[8vw] leading-none font-light tracking-tighter opacity-80 transition-all duration-500">
-              {selectedCategoryIndex !== null ? `0${selectedCategoryIndex + 1}` : '08'}
+            <div className="flex items-center justify-between">
+              <div className="text-[4vw] md:text-[5vw] leading-none font-light tracking-tighter opacity-80 transition-all duration-500">
+                {selectedCategoryIndex !== null ? `0${selectedCategoryIndex + 1}` : '08 '}
+              </div>
+              <div className="text-[4w] md:text-[5vw] leading-none font-light tracking-tighter text-right opacity-80 uppercase transition-all duration-500">
+                {selectedCategoryIndex !== null ? categories[selectedCategoryIndex] : 'PORTFOLIO'}
+              </div>
+
+            <div className="flex justify-center pointer-events-auto">
+              <Link 
+                to="/gallery" 
+                className="text-[15] group flex items-center gap-6 px-12 py-5  text-white text-xs font-bold tracking-[0.4em] uppercase transition-all duration-500 hover:scale-105 hover:shadow-[0_0_40px_rgba(255,255,255,0.4)]"
+              >
+                SEE ALL WORK
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-500" />
+              </Link>
             </div>
-            <div className="text-[12vw] md:text-[8vw] leading-none font-light tracking-tighter text-right opacity-80 uppercase transition-all duration-500">
-              {selectedCategoryIndex !== null ? categories[selectedCategoryIndex] : 'PORTFOLIO'}
             </div>
           </motion.div>
         </div>

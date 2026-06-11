@@ -1,7 +1,10 @@
 import { motion } from 'motion/react';
-import { Mail, Instagram, Twitter } from 'lucide-react';
+import { Mail, Instagram, Twitter, Youtube } from 'lucide-react';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export function About() {
+  useDocumentTitle('About');
+
   return (
     <div className="min-h-screen bg-black text-white pt-32 px-8 pb-16">
       <div className="max-w-6xl mx-auto">
@@ -26,16 +29,23 @@ export function About() {
             <h2 className="text-4xl tracking-tighter mb-6 opacity-50">About</h2>
             <div className="space-y-4 text-lg leading-relaxed opacity-70">
               <p>
-                Multidisciplinary visual artist specializing in the intersection of photography,
-                cinematography, and contemporary art.
+                I'm Mubarak Ismail. Most people call me Mubii. I'm based in Abuja, Nigeria.
               </p>
               <p>
-                My work explores the boundaries between reality and abstraction, utilizing cutting-edge
-                technology and traditional craftsmanship to create compelling visual narratives.
+                I make photographs and films. Sometimes I build the camera first.
               </p>
               <p>
-                Based between Tokyo and Los Angeles, I collaborate with brands, directors, and artists
-                to bring visions to life through the lens.
+                Photography and filmmaking are the core of what I do — the frame, the light, the moment, the story inside the story. From there the practice expands: cinematography, contemporary art installations built with electronics and microcontrollers, alternative photographic processes, alternative art processes. Different tools, same instinct. My background is in computational arts — I spent time at Goldsmiths thinking about what happens when you put code and image-making in the same room. What stuck wasn't the software. It was the drive to understand a process well enough to break it on purpose. I figure it out, usually by taking something apart.
+              </p>
+              <p>
+
+                My work has shown in Nigeria and the UK, turned up in a publication, landed on a London billboard, and earned me a Pexels Hero badge — which is a real thing that exists. I've run workshops, won a competition, and managed to keep a straight face through most of it.
+              </p>
+              <p>
+                The work is built on allegory and easter eggs — things that reward a second look. Some pieces are quiet, some are strange. All of them are asking you something, they're just polite enough not to say it out loud.
+              </p>
+              <p>
+                If you look closely enough, you'll find it. If not, that's fine too.
               </p>
             </div>
           </motion.div>
@@ -77,7 +87,7 @@ export function About() {
           className="border-t border-white/10 pt-16"
         >
           <h2 className="text-4xl tracking-tighter mb-8 opacity-50">Get in Touch</h2>
-          
+
           <div className="grid md:grid-cols-3 gap-8 mb-16">
             <a
               href="mailto:hello@mubarakismail.com"
@@ -93,7 +103,7 @@ export function About() {
             </a>
 
             <a
-              href="https://instagram.com/mubii"
+              href="https://www.instagram.com/mubii15"
               target="_blank"
               rel="noopener noreferrer"
               className="group cursor-hover"
@@ -102,13 +112,13 @@ export function About() {
                 <Instagram className="w-6 h-6 opacity-50 group-hover:opacity-100 transition-opacity" />
                 <div>
                   <div className="text-xs tracking-wider uppercase opacity-50 mb-1">Instagram</div>
-                  <div className="tracking-wide">@mubii</div>
+                  <div className="tracking-wide">@mubii15</div>
                 </div>
               </div>
             </a>
 
             <a
-              href="https://twitter.com/mubii"
+              href="https://twitter.com/mubii_15"
               target="_blank"
               rel="noopener noreferrer"
               className="group cursor-hover"
@@ -117,7 +127,22 @@ export function About() {
                 <Twitter className="w-6 h-6 opacity-50 group-hover:opacity-100 transition-opacity" />
                 <div>
                   <div className="text-xs tracking-wider uppercase opacity-50 mb-1">Twitter</div>
-                  <div className="tracking-wide">@mubii</div>
+                  <div className="tracking-wide">@mubii_15</div>
+                </div>
+              </div>
+            </a>
+
+            <a
+              href="http://youtube.com/@mubii15"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group cursor-hover"
+            >
+              <div className="flex items-center gap-4 p-6 border border-white/10 hover:border-white/30 transition-all">
+                <Youtube className="w-6 h-6 opacity-50 group-hover:opacity-100 transition-opacity" />
+                <div>
+                  <div className="text-xs tracking-wider uppercase opacity-50 mb-1">YouTube</div>
+                  <div className="tracking-wide">@mubii15</div>
                 </div>
               </div>
             </a>
