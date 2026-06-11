@@ -1,7 +1,9 @@
 import { motion } from 'motion/react';
-import { ArrowRight, Instagram, Twitter, Youtube, Mail, MapPin, Briefcase, Users } from 'lucide-react';
+import { ArrowRight, Mail, MapPin, Briefcase, Users } from 'lucide-react';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export function Contact() {
+  useDocumentTitle('Contact');
     const contactSections = [
         {
             title: 'General Inquiries',

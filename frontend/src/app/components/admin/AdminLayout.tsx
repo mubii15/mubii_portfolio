@@ -10,6 +10,7 @@ import {
     Settings, 
     Upload,
 } from 'lucide-react';
+import { Logo } from '../Logo';
 
 const ADMIN_SECTIONS = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/admin' },
@@ -34,8 +35,7 @@ export function AdminLayout() {
                 <div>
                     <div className="flex justify-between items-center mb-8 md:mb-24 text-center md:text-left">
                         <Link to="/" className="text-xl font-bold tracking-tighter opacity-100 hover:opacity-80 transition-opacity flex items-center gap-3 group">
-                             <div className="w-2.5 h-2.5 rounded-full bg-cyan-500 shadow-[0_0_15px_rgba(6,182,212,0.6)] group-hover:scale-125 transition-transform" />
-                             <span>MUBARAK <span className="font-light italic">ISMAIL</span></span>
+                             <Logo className="w-8 h-auto" />
                         </Link>
                         <div className="md:hidden flex flex-col items-end gap-1">
                              <span className="text-[8px] tracking-[0.4em] opacity-40 font-bold uppercase">STUDIO OS</span>
@@ -58,12 +58,12 @@ export function AdminLayout() {
                                 >
                                     <div 
                                         className={`w-2 h-2 md:w-2.5 md:h-2.5 rounded-full border transition-all duration-500
-                                            ${isActive ? 'scale-125 border-cyan-500 bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]' : 'border-white/20 group-hover:border-white/50 bg-transparent'}
+                                            ${isActive ? 'scale-125 border-white bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)]' : 'border-white/20 group-hover:border-white/50 bg-transparent'}
                                         `}
                                     />
                                     <span 
                                         className={`text-[10px] md:text-xs tracking-[0.3em] font-bold transition-all duration-300 
-                                            ${isActive ? 'translate-x-1 md:translate-x-2 text-cyan-400' : 'opacity-30 group-hover:opacity-60 text-white'}
+                                            ${isActive ? 'translate-x-1 md:translate-x-2 text-white/70' : 'opacity-30 group-hover:opacity-60 text-white'}
                                         `}
                                     >
                                         {section.label.toUpperCase()}

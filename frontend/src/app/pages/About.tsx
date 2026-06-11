@@ -1,7 +1,10 @@
 import { motion } from 'motion/react';
 import { Mail, Instagram, Twitter, Youtube } from 'lucide-react';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export function About() {
+  useDocumentTitle('About');
+
   return (
     <div className="min-h-screen bg-black text-white pt-32 px-8 pb-16">
       <div className="max-w-6xl mx-auto">

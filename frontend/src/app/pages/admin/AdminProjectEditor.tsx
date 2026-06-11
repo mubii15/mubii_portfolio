@@ -40,9 +40,11 @@ export function AdminProjectEditor() {
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState('PHOTOGRAPHY');
     const [status, setStatus] = useState<'draft' | 'published'>('draft');
+    const [itemType, setItemType] = useState<'project' | 'single'>('project');
     const [coverAsset, setCoverAsset] = useState<string>('');
     const [blocks, setBlocks] = useState<ContentBlock[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [isUploadingBlock, setIsUploadingBlock] = useState<string | null>(null);
 
     useEffect(() => {
         if (!isNew) {
@@ -55,6 +57,7 @@ export function AdminProjectEditor() {
                         setDescription(data.description || '');
                         setCategory(data.category || 'PHOTOGRAPHY');
                         setStatus(data.status || 'draft');
+                        setItemType(data.item_type || 'project');
                         setCoverAsset(data.cover_asset || '');
                         setBlocks(data.blocks || []);
                     }
@@ -88,7 +91,7 @@ export function AdminProjectEditor() {
 
     const handleSave = async () => {
         setIsLoading(true);
-        const projectData = { title, slug, description, category, status, cover_asset: coverAsset, blocks };
+        const projectData = { title, slug, description, category, status, cover_asset: coverAsset, item_type: itemType, blocks };
         const method = isNew ? 'POST' : 'PUT';
         const url = isNew ? `${API_URL}/api/projects` : `${API_URL}/api/projects?id=${id}`;
 
@@ -138,20 +141,20 @@ export function AdminProjectEditor() {
                             {isNew ? 'New Exhibition' : 'Edit Exhibition'}
                         </h1>
                         <div className="flex items-center gap-2">
-                             <div className={`w-1.5 h-1.5 rounded-full ${status === 'published' ? 'bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]' : 'bg-white/20'}`} />
+                             <div className={`w-1.5 h-1.5 rounded-full ${status === 'published' ? 'bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)]' : 'bg-white/20'}`} />
                              <span className="text-[9px] font-bold text-white/40 uppercase tracking-[0.2em]">{status}</span>
                         </div>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-4">
-                    <button className="flex items-center gap-2 px-6 py-3 bg-white/5 border border-white/10 rounded-xl text-[10px] font-bold tracking-widest uppercase hover:bg-white/10 transition-all">
+                    <button className="flex items-center gap-2 px-6 py-3 bg-white/5 border border-white/10 rounded-sm text-[10px] font-bold tracking-widest uppercase hover:bg-white/10 transition-all">
                         <Eye className="w-4 h-4 opacity-40" /> Preview
                     </button>
                     <button 
                         onClick={handleSave}
                         disabled={isLoading}
-                        className="flex items-center gap-3 px-8 py-3 bg-cyan-500 text-black rounded-xl text-[10px] font-black tracking-widest uppercase hover:scale-105 active:scale-95 transition-all shadow-[0_0_30px_rgba(6,182,212,0.4)] disabled:opacity-50 disabled:grayscale disabled:hover:scale-100"
+                        className="flex items-center gap-3 px-8 py-3 bg-white text-black rounded-sm text-[10px] font-black tracking-widest uppercase hover:scale-105 active:scale-95 transition-all shadow-[0_0_30px_rgba(255,255,255,0.4)] disabled:opacity-50 disabled:grayscale disabled:hover:scale-100"
                     >
                         <Save className="w-4 h-4" /> {isLoading ? 'Saving...' : 'Save'}
                     </button>
@@ -169,27 +172,20 @@ export function AdminProjectEditor() {
                         <div className="space-y-6">
                             <FormInput label="Project Title" placeholder="e.g. Nuit Noire" value={title} onChange={setTitle} />
                             
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 px-1">Slug (URL)</label>
-                                <div className="flex items-center bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3 group focus-within:border-cyan-500/50 transition-all">
-                                    <Globe className="w-3.5 h-3.5 text-slate-600 mr-2" />
-                                    <span className="text-slate-600 text-xs">/exhibition/</span>
-                                    <input 
-                                        type="text" 
-                                        value={slug}
-                                        onChange={(e) => setSlug(e.target.value)}
-                                        className="bg-transparent border-none text-xs font-bold text-white outline-none flex-1 ml-1"
-                                    />
-                                </div>
-                            </div>
+
 
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 px-1">Category</label>
                                 <div className="grid grid-cols-2 gap-2">
-                                    {['PHOTOGRAPHY', 'CINEMATOGRAPHY', 'VFX', 'ART'].map(cat => (
+                                    {['PHOTOGRAPHY', 'CINEMATOGRAPHY', 'VFX', 'COLOR GRADING', 'CONTEMPORARY ART'].map(cat => (
                                         <button 
                                             key={cat}
-                                            onClick={() => setCategory(cat)}
+                                            onClick={() => {
+                                                setCategory(cat);
+                                                if (['CINEMATOGRAPHY', 'VFX', 'COLOR GRADING'].includes(cat)) {
+                                                    setItemType('project');
+                                                }
+                                            }}
                                             className={`py-2 rounded-lg text-[9px] font-bold tracking-widest border transition-all uppercase
                                                 ${category === cat ? 'bg-white text-black border-white' : 'bg-transparent border-white/5 text-white/40 hover:border-white/20'}
                                             `}
@@ -199,6 +195,28 @@ export function AdminProjectEditor() {
                                     ))}
                                 </div>
                             </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 px-1">Item Type</label>
+                                <div className="grid grid-cols-2 gap-2">
+                                    {['project', 'single'].map(type => {
+                                        const isVideoCat = ['CINEMATOGRAPHY', 'VFX', 'COLOR GRADING'].includes(category);
+                                        const isDisabled = isVideoCat && type === 'single';
+                                        
+                                        return (
+                                        <button 
+                                            key={type}
+                                            disabled={isDisabled}
+                                            onClick={() => setItemType(type as any)}
+                                            className={`py-2 rounded-lg text-[9px] font-bold tracking-widest border transition-all uppercase
+                                                ${itemType === type ? 'bg-white text-black border-white' : 'bg-transparent border-white/5 text-white/40 hover:border-white/20'}
+                                                ${isDisabled ? 'opacity-20 cursor-not-allowed' : ''}
+                                            `}
+                                        >
+                                            {type}
+                                        </button>
+                                    )})}
+                                </div>
+                            </div>
 
                             <FormInput label="Brief Narrative" isTextArea placeholder="Describe the vision..." value={description} onChange={setDescription} />
                         </div>
@@ -206,12 +224,12 @@ export function AdminProjectEditor() {
 
                     <section className="space-y-4">
                          <h3 className="text-[10px] font-black tracking-[0.4em] uppercase text-white/20">Cover Asset</h3>
-                         <div className="relative aspect-[4/5] bg-white/[0.02] border-2 border-dashed border-white/5 rounded-3xl group hover:border-cyan-500/30 transition-all flex flex-col items-center justify-center p-8 text-center overflow-hidden">
+                         <div className="relative aspect-[4/5] bg-white/[0.02] border-2 border-dashed border-white/5 rounded-3xl group hover:border-white/30 transition-all flex flex-col items-center justify-center p-8 text-center overflow-hidden">
                              {coverAsset ? (
                                 <img src={coverAsset} className="absolute inset-0 w-full h-full object-cover" alt="Cover" />
                              ) : (
                                 <>
-                                    <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center group-hover:scale-110 group-hover:bg-cyan-500 transition-all duration-500 mb-4 z-10 pointer-events-none">
+                                    <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center group-hover:scale-110 group-hover:bg-white transition-all duration-500 mb-4 z-10 pointer-events-none">
                                         <Upload className="w-5 h-5 text-white group-hover:text-black" />
                                     </div>
                                     <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500 z-10 pointer-events-none">Drop Master Thumbnail</span>
@@ -236,7 +254,7 @@ export function AdminProjectEditor() {
                     <section className="bg-white/[0.01] border border-white/5 p-10 rounded-[40px] min-h-[500px] flex flex-col gap-10">
                         <div className="flex items-center justify-between border-b border-white/5 pb-8">
                              <div className="flex flex-col gap-1">
-                                <h3 className="text-[11px] font-black tracking-[0.3em] uppercase text-cyan-500">Exhibition Layout</h3>
+                                <h3 className="text-[11px] font-black tracking-[0.3em] uppercase text-white">Exhibition Layout</h3>
                                 <p className="text-[9px] font-bold text-white/20 uppercase">Drag to reorder blocks</p>
                              </div>
                              <div className="flex gap-3">
@@ -264,8 +282,8 @@ export function AdminProjectEditor() {
 
                                         <div className="flex items-center justify-between mb-8">
                                              <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-cyan-500">
-                                                    {block.type === 'gallery' && <ImageIcon className="w-4 h-4" />}
+                                                <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-white">
+                                                    {(block.type === 'gallery' || block.type === 'image') && <ImageIcon className="w-4 h-4" />}
                                                     {block.type === 'video' && <Film className="w-4 h-4" />}
                                                     {block.type === 'text' && <Type className="w-4 h-4" />}
                                                 </div>
@@ -280,6 +298,18 @@ export function AdminProjectEditor() {
                                         </div>
 
                                         {/* BLOCK CONTENT */}
+                                        {block.type === 'image' && (
+                                            <div className="relative aspect-[4/5] max-w-sm bg-black rounded-sm border border-white/10 overflow-hidden group/img">
+                                                <img src={block.data?.url || ''} className="w-full h-full object-cover" />
+                                                <button 
+                                                    onClick={() => setCoverAsset(block.data?.url || '')}
+                                                    className="absolute bottom-4 left-4 right-4 py-3 bg-black/80 hover:bg-white text-white hover:text-black rounded-lg opacity-0 group-hover/img:opacity-100 transition-all text-[10px] font-bold uppercase tracking-widest text-center"
+                                                >
+                                                    Set Cover
+                                                </button>
+                                            </div>
+                                        )}
+
                                         {block.type === 'text' && (
                                             <textarea 
                                                 value={block.data?.text || ''}
@@ -296,7 +326,7 @@ export function AdminProjectEditor() {
 
                                         {block.type === 'video' && (
                                             <div className="space-y-4">
-                                                <div className="flex items-center bg-black border border-white/10 rounded-2xl p-4 gap-4">
+                                                <div className="flex items-center bg-black border border-white/10 rounded-md p-4 gap-4">
                                                      <LinkIcon className="w-5 h-5 text-white/20" />
                                                      <input 
                                                         type="text" 
@@ -311,7 +341,7 @@ export function AdminProjectEditor() {
                                                         className="bg-transparent border-none text-sm font-medium text-white flex-1 outline-none"
                                                      />
                                                 </div>
-                                                <div className="aspect-video bg-black rounded-2xl flex items-center justify-center border border-white/5 relative overflow-hidden">
+                                                <div className="aspect-video bg-black rounded-md flex items-center justify-center border border-white/5 relative overflow-hidden">
                                                     {block.data?.url ? (
                                                         <span className="text-white/40 text-xs truncate max-w-[80%] absolute">{block.data.url}</span>
                                                     ) : (
@@ -324,8 +354,14 @@ export function AdminProjectEditor() {
                                         {block.type === 'gallery' && (
                                             <div className="grid grid-cols-3 gap-4">
                                                 {(block.data || []).map((imgUrl: string, i: number) => (
-                                                    <div key={i} className="aspect-[4/5] bg-black rounded-xl border border-white/10 overflow-hidden relative group/img">
+                                                    <div key={i} className="aspect-[4/5] bg-black rounded-sm border border-white/10 overflow-hidden relative group/img">
                                                         <img src={imgUrl} className="w-full h-full object-cover" />
+                                                        <button 
+                                                            onClick={() => setCoverAsset(imgUrl)}
+                                                            className="absolute bottom-2 left-2 right-12 py-1.5 bg-black/80 hover:bg-white text-white hover:text-black rounded-lg opacity-0 group-hover/img:opacity-100 transition-all text-[9px] font-bold uppercase tracking-widest text-center"
+                                                        >
+                                                            Set Cover
+                                                        </button>
                                                         <button 
                                                             onClick={() => {
                                                                 const newBlocks = [...blocks];
@@ -341,27 +377,38 @@ export function AdminProjectEditor() {
                                                         </button>
                                                     </div>
                                                 ))}
-                                                <div className="aspect-[4/5] bg-black rounded-xl border border-dashed border-white/10 flex flex-col items-center justify-center gap-2 group/add relative hover:border-cyan-500/40 transition-all overflow-hidden">
-                                                     <Plus className="w-6 h-6 text-white/10 group-hover/add:text-cyan-500 pointer-events-none" />
-                                                     <span className="text-[8px] font-bold uppercase tracking-widest text-white/10 group-hover/add:text-cyan-500 pointer-events-none">Add Item</span>
-                                                     <input 
-                                                        type="file" 
-                                                        className="absolute inset-0 opacity-0 cursor-pointer"
-                                                        onChange={async (e) => {
-                                                            if (e.target.files?.[0]) {
-                                                                const url = await handleFileUpload(e.target.files[0]);
-                                                                if (url) {
-                                                                    const newBlocks = [...blocks];
-                                                                    const idx = newBlocks.findIndex(b => b.id === block.id);
-                                                                    if (idx !== -1) {
-                                                                        const currentData = Array.isArray(newBlocks[idx].data) ? newBlocks[idx].data : [];
-                                                                        newBlocks[idx].data = [...currentData, url];
-                                                                        setBlocks(newBlocks);
+                                                <div className="aspect-[4/5] bg-black rounded-sm border border-dashed border-white/10 flex flex-col items-center justify-center gap-2 group/add relative hover:border-white/40 transition-all overflow-hidden">
+                                                     {isUploadingBlock === block.id ? (
+                                                         <>
+                                                             <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                                                             <span className="text-[8px] font-bold uppercase tracking-widest text-white/40">Uploading...</span>
+                                                         </>
+                                                     ) : (
+                                                         <>
+                                                             <Plus className="w-6 h-6 text-white/10 group-hover/add:text-white pointer-events-none" />
+                                                             <span className="text-[8px] font-bold uppercase tracking-widest text-white/10 group-hover/add:text-white pointer-events-none">Add Item</span>
+                                                             <input 
+                                                                type="file" 
+                                                                className="absolute inset-0 opacity-0 cursor-pointer"
+                                                                onChange={async (e) => {
+                                                                    if (e.target.files?.[0]) {
+                                                                        setIsUploadingBlock(block.id);
+                                                                        const url = await handleFileUpload(e.target.files[0]);
+                                                                        setIsUploadingBlock(null);
+                                                                        if (url) {
+                                                                            const newBlocks = [...blocks];
+                                                                            const idx = newBlocks.findIndex(b => b.id === block.id);
+                                                                            if (idx !== -1) {
+                                                                                const currentData = Array.isArray(newBlocks[idx].data) ? newBlocks[idx].data : [];
+                                                                                newBlocks[idx].data = [...currentData, url];
+                                                                                setBlocks(newBlocks);
+                                                                            }
+                                                                        }
                                                                     }
-                                                                }
-                                                            }
-                                                        }}
-                                                     />
+                                                                }}
+                                                             />
+                                                         </>
+                                                     )}
                                                 </div>
                                             </div>
                                         )}
@@ -388,9 +435,9 @@ function AddBlockButton({ icon: Icon, label, onClick }: any) {
     return (
         <button 
             onClick={onClick}
-            className="flex items-center gap-3 px-4 py-2 hover:bg-white/5 border border-white/10 rounded-xl text-[9px] font-bold tracking-widest uppercase transition-all hover:scale-105 active:scale-95"
+            className="flex items-center gap-3 px-4 py-2 hover:bg-white/5 border border-white/10 rounded-sm text-[9px] font-bold tracking-widest uppercase transition-all hover:scale-105 active:scale-95"
         >
-            <Icon className="w-3.5 h-3.5 text-cyan-500" /> {label}
+            <Icon className="w-3.5 h-3.5 text-white" /> {label}
         </button>
     );
 }
@@ -404,7 +451,7 @@ function FormInput({ label, placeholder, isTextArea = false, value, onChange }: 
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
                     placeholder={placeholder}
-                    className="w-full bg-white/[0.02] border border-white/10 rounded-xl py-4 px-5 text-sm font-medium focus:border-cyan-500 outline-none transition-all placeholder:text-white/10 min-h-[120px]"
+                    className="w-full bg-white/[0.02] border border-white/10 rounded-sm py-4 px-5 text-sm font-medium focus:border-white outline-none transition-all placeholder:text-white/10 min-h-[120px]"
                 />
             ) : (
                 <input 
@@ -412,7 +459,7 @@ function FormInput({ label, placeholder, isTextArea = false, value, onChange }: 
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
                     placeholder={placeholder}
-                    className="w-full bg-white/[0.02] border border-white/10 rounded-xl py-4 px-5 text-sm font-medium focus:border-cyan-500 outline-none transition-all placeholder:text-white/10"
+                    className="w-full bg-white/[0.02] border border-white/10 rounded-sm py-4 px-5 text-sm font-medium focus:border-white outline-none transition-all placeholder:text-white/10"
                 />
             )}
         </div>

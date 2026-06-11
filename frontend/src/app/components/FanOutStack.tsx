@@ -77,6 +77,7 @@ export function FanOutStack({ images, variant = 'fan', onIndexSelect, selectedIn
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
     const [localSelectedIndex, setLocalSelectedIndex] = useState<number | null>(null);
     const [activeDetailIndex, setActiveDetailIndex] = useState(0);
+    const [descExpanded, setDescExpanded] = useState(false);
     const reelRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
 
@@ -195,6 +196,7 @@ export function FanOutStack({ images, variant = 'fan', onIndexSelect, selectedIn
             setLocalSelectedIndex(null);
         }
         setActiveDetailIndex(0);
+        setDescExpanded(false);
     };
 
     // Handle reel scroll to update active metadata
@@ -205,6 +207,7 @@ export function FanOutStack({ images, variant = 'fan', onIndexSelect, selectedIn
         const newIndex = Math.min(Math.round(scrollTop / itemHeight), catCount - 1);
         if (newIndex !== activeDetailIndex) {
             setActiveDetailIndex(newIndex);
+            setDescExpanded(false);
         }
     };
 
@@ -333,14 +336,26 @@ export function FanOutStack({ images, variant = 'fan', onIndexSelect, selectedIn
                                                     </motion.h2>
                                                 </div>
                                                 {item.description && (
-                                                    <motion.p 
-                                                        initial={{ opacity: 0 }}
-                                                        animate={{ opacity: 0.6 }}
-                                                        transition={{ delay: 0.4 }}
-                                                        className="text-xs md:text-sm tracking-wide leading-relaxed max-w-[400px]"
-                                                    >
-                                                        {item.description}
-                                                    </motion.p>
+                                                    <div>
+                                                        <motion.p 
+                                                            initial={{ opacity: 0 }}
+                                                            animate={{ opacity: 0.6 }}
+                                                            transition={{ delay: 0.4 }}
+                                                            className={`text-xs md:text-sm tracking-wide leading-relaxed max-w-[400px] transition-all ${
+                                                                descExpanded ? '' : 'line-clamp-3'
+                                                            }`}
+                                                        >
+                                                            {item.description}
+                                                        </motion.p>
+                                                        {item.description.length > 120 && (
+                                                            <button
+                                                                onClick={(e) => { e.stopPropagation(); setDescExpanded(v => !v); }}
+                                                                className="mt-1 text-[9px] font-bold tracking-[0.3em] uppercase opacity-30 hover:opacity-80 transition-opacity pointer-events-auto"
+                                                            >
+                                                                {descExpanded ? 'See Less ↑' : 'See More ↓'}
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                 )}
                                             </motion.div>
                                         );
@@ -369,7 +384,7 @@ export function FanOutStack({ images, variant = 'fan', onIndexSelect, selectedIn
                                 {(() => {
                                     const catItems = categoryData[selectedIndex]?.items ?? [];
                                     const reelImages = catItems.length > 0
-                                        ? catItems.slice(0, 3).map(it => it.cover_asset)
+                                        ? catItems.map(it => it.cover_asset)
                                         : [images[selectedIndex]];
                                     return reelImages.map((src, item) => (
                                         <div key={item} className="w-full aspect-[400/650] bg-gray-900 shadow-2xl border border-white/10 shrink-0">
@@ -449,9 +464,9 @@ export function FanOutStack({ images, variant = 'fan', onIndexSelect, selectedIn
                         // Calculate z-index logic
                         let zIndexStyle: number | undefined;
                         if (variant === 'fan') {
-                            zIndexStyle = hoveredIndex === index ? 100 : index + 10;
+                            zIndexStyle = hoveredIndex === index ? 100 : 50 - index;
                         } else if (variant === 'collapsed') {
-                            zIndexStyle = index + 1;
+                            zIndexStyle = 50 - index;
                         } else {
                             zIndexStyle = 1;
                         }

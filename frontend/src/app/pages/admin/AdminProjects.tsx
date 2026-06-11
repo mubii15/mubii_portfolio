@@ -20,26 +20,26 @@ export function AdminProjects() {
                 </div>
                 <button 
                     onClick={() => window.location.href = '/admin/upload'}
-                    className="flex items-center gap-3 px-6 py-3 bg-cyan-500 text-black text-xs font-black tracking-widest uppercase rounded-xl hover:scale-105 transition-all shadow-[0_0_20px_rgba(6,182,212,0.4)]"
+                    className="flex items-center gap-3 px-6 py-3 bg-white text-black text-xs font-black tracking-widest uppercase rounded-sm hover:scale-105 transition-all shadow-[0_0_20px_rgba(255,255,255,0.4)]"
                 >
                     <Plus className="w-4 h-4" /> Add New
                 </button>
             </div>
 
             {/* FILTERS & SEARCH */}
-            <div className="flex flex-wrap gap-4 items-center justify-between bg-white/[0.03] border border-white/5 p-4 rounded-2xl">
+            <div className="flex flex-wrap gap-4 items-center justify-between bg-white/[0.03] border border-white/5 p-4 rounded-md">
                 <div className="flex gap-4 flex-1 max-w-md">
                     <div className="relative flex-1 group">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-hover:text-cyan-500 transition-colors" />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-hover:text-white transition-colors" />
                         <input 
                             type="text" 
                             placeholder="SEARCH ARCHIVE..." 
-                            className="w-full bg-black/50 border border-white/5 rounded-xl py-3 pl-12 pr-4 text-[10px] font-bold tracking-widest uppercase focus:border-cyan-500/50 outline-none transition-all"
+                            className="w-full bg-black/50 border border-white/5 rounded-sm py-3 pl-12 pr-4 text-[10px] font-bold tracking-widest uppercase focus:border-white/50 outline-none transition-all"
                         />
                     </div>
                 </div>
                 <div className="flex gap-2">
-                    <button className="px-4 py-2 hover:bg-white/5 rounded-lg text-[10px] font-bold tracking-widest uppercase text-cyan-500">All ({GALLERY_DATA.length})</button>
+                    <button className="px-4 py-2 hover:bg-white/5 rounded-lg text-[10px] font-bold tracking-widest uppercase text-white">All ({GALLERY_DATA.length})</button>
                     <button className="px-4 py-2 hover:bg-white/5 rounded-lg text-[10px] font-bold tracking-widest uppercase opacity-40">Drafts (2)</button>
                     <button className="px-4 py-2 hover:bg-white/5 rounded-lg text-[10px] font-bold tracking-widest uppercase opacity-40">Published</button>
                 </div>
@@ -68,17 +68,17 @@ export function AdminProjects() {
                             >
                                 <td className="px-8 py-6">
                                     <div className="flex items-center gap-2">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]" />
-                                        <span className="text-[9px] font-bold tracking-widest uppercase text-cyan-500">Live</span>
+                                        <div className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)]" />
+                                        <span className="text-[9px] font-bold tracking-widest uppercase text-white">Live</span>
                                     </div>
                                 </td>
                                 <td className="px-8 py-6">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-14 h-14 rounded-lg overflow-hidden border border-white/10 group-hover:border-cyan-500/50 transition-colors">
+                                        <div className="w-14 h-14 rounded-lg overflow-hidden border border-white/10 group-hover:border-white/50 transition-colors">
                                             <img src={project.image} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                                         </div>
                                         <div className="flex flex-col">
-                                            <span className="text-sm font-bold text-white group-hover:text-cyan-400 transition-colors tracking-tight uppercase tracking-widest leading-none">{project.name}</span>
+                                            <span className="text-sm font-bold text-white group-hover:text-white/70 transition-colors tracking-tight uppercase tracking-widest leading-none">{project.name}</span>
                                             <span className="text-[8px] text-slate-500 font-bold uppercase tracking-[0.2em] opacity-40 mt-1">ID: {project.id}0426</span>
                                         </div>
                                     </div>
@@ -98,7 +98,7 @@ export function AdminProjects() {
                                         <button className="p-2 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white transition-colors">
                                             <ExternalLink className="w-3.5 h-3.5" />
                                         </button>
-                                        <button className="p-2 hover:bg-white/10 rounded-lg text-slate-400 hover:text-cyan-400 transition-colors">
+                                        <button className="p-2 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white/70 transition-colors">
                                             <Edit3 className="w-3.5 h-3.5" />
                                         </button>
                                         <button className="p-2 hover:bg-red-500/10 rounded-lg text-slate-600 hover:text-red-500 transition-colors">

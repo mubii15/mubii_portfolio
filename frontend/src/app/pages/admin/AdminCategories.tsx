@@ -47,7 +47,7 @@ export function AdminCategories() {
                 </div>
                 <button 
                     onClick={() => setIsAdding(true)}
-                    className="flex items-center gap-3 px-8 py-3 bg-cyan-500 text-black text-[10px] font-black tracking-widest uppercase rounded-xl hover:scale-105 transition-all shadow-[0_0_30px_rgba(6,182,212,0.4)]"
+                    className="flex items-center gap-3 px-8 py-3 bg-white text-black text-[10px] font-black tracking-widest uppercase rounded-sm hover:scale-105 transition-all shadow-[0_0_30px_rgba(255,255,255,0.4)]"
                 >
                     <Plus className="w-4 h-4" /> Add Tag
                 </button>
@@ -59,9 +59,9 @@ export function AdminCategories() {
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
-                        className="bg-white/[0.02] border border-white/10 p-8 rounded-[32px] flex items-center gap-6 group"
+                        className="bg-white/[0.02] border border-white/10 p-8 rounded-sm flex items-center gap-6 group"
                     >
-                        <div className="w-12 h-12 bg-cyan-500/10 rounded-full flex items-center justify-center text-cyan-500">
+                        <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-white">
                              <Hash className="w-6 h-6" />
                         </div>
                         <input 
@@ -95,7 +95,7 @@ export function AdminCategories() {
                         <div className="flex items-center gap-6">
                             <div className="w-4 h-4 rounded-full" style={{ backgroundColor: cat.color, boxShadow: `0 0 20px ${cat.color}66` }} />
                             <div className="flex flex-col gap-1">
-                                <h3 className="text-xl font-bold tracking-tighter uppercase italic text-white group-hover:text-cyan-400 transition-colors">{cat.name}</h3>
+                                <h3 className="text-xl font-bold tracking-tighter uppercase italic text-white group-hover:text-white/70 transition-colors">{cat.name}</h3>
                                 <div className="flex items-center gap-2 opacity-30 group-hover:opacity-60 transition-opacity">
                                     <Layers className="w-3 h-3" />
                                     <span className="text-[10px] font-bold uppercase tracking-widest">{cat.count} Linked Projects</span>
@@ -104,8 +104,8 @@ export function AdminCategories() {
                         </div>
 
                         <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
-                            <button className="p-3 hover:bg-white/10 rounded-xl text-slate-500 hover:text-white transition-all"><Edit3 className="w-4 h-4" /></button>
-                            <button className="p-3 hover:bg-red-500/10 rounded-xl text-slate-500 hover:text-red-500 transition-all"><Trash2 className="w-4 h-4" /></button>
+                            <button className="p-3 hover:bg-white/10 rounded-sm text-slate-500 hover:text-white transition-all"><Edit3 className="w-4 h-4" /></button>
+                            <button className="p-3 hover:bg-red-500/10 rounded-sm text-slate-500 hover:text-red-500 transition-all"><Trash2 className="w-4 h-4" /></button>
                         </div>
                     </motion.div>
                 ))}

@@ -1,9 +1,10 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Share2, Heart, Loader2, X, ArrowRight, Expand } from 'lucide-react';
+import { ArrowLeft, Share2, Heart, Loader2, X, Expand } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import axios from 'axios';
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
@@ -14,6 +15,8 @@ export function ProjectDetail() {
     const [nextProject, setNextProject] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+    useDocumentTitle(project ? project.title : 'Project');
 
     useEffect(() => {
         setIsLoading(true);
@@ -77,7 +80,32 @@ export function ProjectDetail() {
     }
 
     const blocks = Array.isArray(project.blocks) ? project.blocks : [];
-    const imageBlocks = blocks.filter((b: any) => b.type === 'image' && b.data?.url);
+    
+    // Support both single image blocks and gallery blocks
+    const imageBlocks: { data: { url: string } }[] = [];
+    blocks.forEach((b: any) => {
+        if (b.type === 'image' && b.data?.url) {
+            imageBlocks.push({ data: { url: b.data.url } });
+        } else if (b.type === 'gallery' && Array.isArray(b.data)) {
+            b.data.forEach((url: string) => imageBlocks.push({ data: { url } }));
+        }
+    });
+
+    const videoBlock = blocks.find((b: any) => b.type === 'video' && b.data?.url);
+    const videoUrl = videoBlock ? videoBlock.data.url : null;
+
+    const getEmbedUrl = (url: string) => {
+        if (!url) return '';
+        if (url.includes('vimeo.com')) {
+            const id = url.split('/').pop();
+            return `https://player.vimeo.com/video/${id}`;
+        }
+        if (url.includes('youtube.com') || url.includes('youtu.be')) {
+            const id = url.includes('youtu.be') ? url.split('/').pop() : new URL(url).searchParams.get('v');
+            return `https://www.youtube.com/embed/${id}?controls=1`;
+        }
+        return url;
+    };
 
     // Merge master asset into gallery list as the first item
     const allGalleryAssets = [
@@ -85,42 +113,32 @@ export function ProjectDetail() {
         ...imageBlocks.map((b: any) => ({ url: b.data.url, title: 'Scene Detail' }))
     ];
 
-    // Bento grid span helper
-    const getGridSpan = (index: number) => {
-        const patterns = [
-            "md:col-span-8 md:row-span-2", // Large
-            "md:col-span-4 md:row-span-1", // Small Top
-            "md:col-span-4 md:row-span-1", // Small Bottom
-            "md:col-span-6 md:row-span-2", // Mid Wide
-            "md:col-span-6 md:row-span-2", // Mid Wide
-        ];
-        return patterns[index % patterns.length];
-    };
+
 
     return (
         <div className="min-h-screen bg-black text-white font-sans selection:bg-white selection:text-black pb-24">
 
-            {/* Header / Nav */}
-            <nav className="fixed top-0 w-full z-50 p-8 flex justify-between items-center mix-blend-difference">
+            {/* Back button — sits in global nav space, z-index above nav */}
+            <div className="fixed top-0 w-full z-[60] p-6 md:p-8 pointer-events-none flex justify-between items-center">
                 <button
                     onClick={() => navigate(-1)}
-                    className="group flex items-center gap-4 text-xs font-bold tracking-[0.3em] uppercase"
+                    className="pointer-events-auto group flex items-center gap-3 text-xs font-bold tracking-[0.3em] uppercase mix-blend-difference text-white"
                 >
-                    <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all">
-                        <ArrowLeft className="w-4 h-4" />
+                    <div className="w-8 h-8 rounded-full border border-white/30 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all">
+                        <ArrowLeft className="w-3 h-3" />
                     </div>
-                    <span>Back to Gallery</span>
+                    <span className="hidden md:inline">Back to Gallery</span>
                 </button>
 
-                <div className="flex gap-6">
-                    <button className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white hover:text-black transition-all">
-                        <Heart className="w-4 h-4" />
+                <div className="pointer-events-auto flex gap-3">
+                    <button className="w-8 h-8 rounded-full border border-white/30 flex items-center justify-center hover:bg-white hover:text-black transition-all mix-blend-difference text-white">
+                        <Heart className="w-3 h-3" />
                     </button>
-                    <button className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white hover:text-black transition-all">
-                        <Share2 className="w-4 h-4" />
+                    <button className="w-8 h-8 rounded-full border border-white/30 flex items-center justify-center hover:bg-white hover:text-black transition-all mix-blend-difference text-white">
+                        <Share2 className="w-3 h-3" />
                     </button>
                 </div>
-            </nav>
+            </div>
 
             {/* HERO SECTION */}
             <section className="relative h-[90vh] overflow-hidden">
@@ -151,22 +169,37 @@ export function ProjectDetail() {
             </section>
 
             {/* CONTENT SECTION - BENTO GRID & STICKY INFO */}
-            <section className="max-w-7xl mx-auto px-6 md:px-12 mt-24 mb-32">
+            <section className="max-w-7xl mx-auto px-6 md:px-12 mt-24 mb-32 space-y-16">
+
+                {/* VIDEO PLAYER */}
+                {videoUrl && (
+                    <div className="aspect-video w-full rounded-[40px] overflow-hidden border border-white/10 shadow-2xl bg-black">
+                        <iframe 
+                            src={getEmbedUrl(videoUrl)} 
+                            className="w-full h-full" 
+                            allow="autoplay; fullscreen; picture-in-picture"
+                            allowFullScreen
+                        ></iframe>
+                    </div>
+                )}
+
                 <div className="flex flex-col md:flex-row gap-12 items-start">
 
                     {/* STICKY INFO BLOCK */}
                     <div className="w-full md:w-1/3 md:sticky top-32 space-y-8">
                         <div className="bg-white/[0.03] border border-white/5 rounded-[40px] p-8 space-y-12">
-                            <div className="space-y-4">
-                                <h3 className="text-[10px] tracking-[0.4em] font-black uppercase opacity-20">The Concept</h3>
-                                <motion.p
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    className="text-xl md:text-2xl leading-tight font-light italic opacity-90"
-                                >
-                                    "{project.description}"
-                                </motion.p>
-                            </div>
+                            {project.description && (
+                                <div className="space-y-4">
+                                    <h3 className="text-[10px] tracking-[0.4em] font-black uppercase opacity-20">The Concept</h3>
+                                    <motion.p
+                                        initial={{ opacity: 0, y: 20 }}
+                                        whileInView={{ opacity: 1, y: 0 }}
+                                        className="text-xl md:text-2xl leading-tight font-light italic opacity-90 whitespace-pre-wrap break-words"
+                                    >
+                                        "{project.description}"
+                                    </motion.p>
+                                </div>
+                            )}
 
                             <div className="pt-8 border-t border-white/10 grid grid-cols-2 gap-4">
                                 <div className="space-y-1">
@@ -204,7 +237,7 @@ export function ProjectDetail() {
                                         className="group relative overflow-hidden border border-white/10 bg-white/5 cursor-pointer"
                                     >
                                         <img
-                                            src={asset.url}
+                                            src={`${API_URL}/api/thumb?path=${encodeURIComponent(asset.url)}`}
                                             loading="lazy"
                                             className="w-full h-auto transition-all duration-1000 group-hover:scale-105"
                                             alt={asset.title}
@@ -257,13 +290,17 @@ export function ProjectDetail() {
                             <X className="w-6 h-6" />
                         </button>
 
-                        <div className="relative z-[110] w-full max-w-[85vw] max-h-[85vh] flex items-center justify-center">
+                        <div 
+                            className="relative z-[110] w-full max-w-[85vw] h-[85vh] flex items-center justify-center cursor-pointer"
+                            onClick={() => setSelectedImage(null)}
+                        >
                             <motion.img
                                 src={selectedImage}
                                 initial={{ scale: 0.9, opacity: 0 }}
                                 animate={{ scale: 1, opacity: 1 }}
                                 transition={{ type: "spring", damping: 30, stiffness: 200 }}
-                                className="max-w-full max-h-full object-contain shadow-[0_50px_100px_rgba(0,0,0,0.5)]"
+                                className="max-w-full max-h-[85vh] object-contain shadow-[0_50px_100px_rgba(0,0,0,0.5)] cursor-default"
+                                onClick={(e: React.MouseEvent) => e.stopPropagation()}
                             />
                         </div>
 

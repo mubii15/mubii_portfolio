@@ -6,6 +6,8 @@ import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 import { ChevronRight, X, ArrowRight, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { Logo } from '../components/Logo';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 const CATEGORIES = ["ALL", "PHOTOGRAPHY", "CINEMATOGRAPHY", "VFX", "COLOR GRADING", "CONTEMPORARY ART"] as const;
@@ -32,25 +34,36 @@ interface GalleryItem {
 }
 
 export function CategoryGallery() {
+    const { category } = useParams<{ category: string }>();
     const navigate = useNavigate();
-    const { category: initialCategory } = useParams<{ category: string }>();
-    const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory?.toUpperCase() || "ALL");
+    useDocumentTitle(category && category !== 'all' ? category.toUpperCase() : 'Portfolio');
+    const [selectedCategory, setSelectedCategory] = useState<string>(category?.toUpperCase() || "ALL");
     const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
     const [selectedLightboxItem, setSelectedLightboxItem] = useState<GalleryItem | null>(null);
+    const [descExpanded, setDescExpanded] = useState(false);
     const [hoveredId, setHoveredId] = useState<number | null>(null);
     const [allItems, setAllItems] = useState<GalleryItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        if (initialCategory) {
-            setSelectedCategory(initialCategory.toUpperCase().replace("-", " "));
+        if (category) {
+            setSelectedCategory(category.toUpperCase().replace("-", " "));
         }
-    }, [initialCategory]);
+    }, [category]);
 
     useEffect(() => {
         setIsLoading(true);
         axios.get(`${API_URL}/api/projects`)
-            .then(({ data }) => setAllItems(Array.isArray(data) ? data.filter((p: any) => p.status === 'published') : []))
+            .then(({ data }) => {
+                if (Array.isArray(data)) {
+                    const published = data.filter((p: any) => p.status === 'published');
+                    // Randomize the order
+                    const shuffled = published.sort(() => Math.random() - 0.5);
+                    setAllItems(shuffled);
+                } else {
+                    setAllItems([]);
+                }
+            })
             .catch(err => console.error(err))
             .finally(() => setIsLoading(false));
     }, []);
@@ -68,8 +81,8 @@ export function CategoryGallery() {
             <div className="w-full h-auto md:w-[30vw] md:h-screen md:sticky top-0 p-8 md:p-12 flex flex-col justify-between border-b md:border-b-0 md:border-r border-white/5 bg-black/50 backdrop-blur-3xl z-[60]">
                 <div>
                     <div className="flex justify-between items-center mb-8 md:mb-24">
-                        <Link to="/" className="text-xl font-bold tracking-tighter opacity-80 hover:opacity-100 transition-opacity">
-                            MUBARAK <span className="font-light italic">ISMAIL</span>
+                        <Link to="/" className="opacity-80 hover:opacity-100 transition-opacity">
+                            <Logo className="w-8 md:w-10 h-auto" />
                         </Link>
                     </div>
 
@@ -77,7 +90,7 @@ export function CategoryGallery() {
                         TIME <span className="opacity-40 italic font-light text-[6vw] md:text-[4vw]">OBEYS</span> ME FOR A FEW FRAMES
                     </h1>
 
-                    <nav className="flex flex-row md:flex-col gap-6 overflow-x-auto pb-4 md:pb-0 scrollbar-hide px-2 md:px-0">
+                    <nav className="flex flex-row md:flex-col gap-6 overflow-x-auto pb-4 pt-2 md:pb-0 scrollbar-hide px-4 md:px-0">
                         {CATEGORIES.map((cat) => (
                             <button
                                 key={cat}
@@ -85,7 +98,7 @@ export function CategoryGallery() {
                                 className="flex items-center gap-3 md:gap-4 group text-left whitespace-nowrap min-w-fit"
                             >
                                 <div 
-                                    className={`w-2.5 h-2.5 md:w-3 md:h-3 rounded-full border transition-all duration-500 flex items-center justify-center
+                                    className={`w-2.5 h-2.5 md:w-3 md:h-3 rounded-full border transition-all duration-500 flex items-center justify-center shrink-0
                                         ${selectedCategory === cat ? 'scale-125 shadow-[0_0_15px_rgba(255,255,255,0.2)]' : 'opacity-40 group-hover:opacity-100 group-hover:scale-110'}
                                     `}
                                     style={{ 
@@ -118,7 +131,7 @@ export function CategoryGallery() {
             </div>
 
             {/* CONTENT */}
-            <div className="w-full md:w-[70vw] min-h-screen p-6 md:p-12">
+            <div className="w-full md:w-[70vw] min-h-screen p-6 md:p-16 lg:p-24">
                 
                 {/* Alphabet Filter */}
                 <div className="flex flex-wrap gap-x-6 gap-y-4 mb-12 py-6 border-y border-white/5">
@@ -169,7 +182,7 @@ export function CategoryGallery() {
                                 )}
                             </div>
                         ) : (
-                            <ResponsiveMasonry columnsCountBreakPoints={{ 350: 1, 750: 2, 900: 3 }}>
+                            <ResponsiveMasonry columnsCountBreakPoints={{ 350: 1, 750: 2, 1024: 3 }}>
                                 <Masonry gutter="3rem">
                                     {filteredItems.map((item) => {
                                         const blocks = typeof item.blocks === 'string' ? JSON.parse(item.blocks) : (item.blocks || []);
@@ -181,7 +194,7 @@ export function CategoryGallery() {
                                         return (
                                             <motion.div 
                                                 key={item.id} 
-                                                className="group cursor-pointer relative"
+                                                className="group cursor-pointer relative p-4 md:p-8"
                                                 style={{ zIndex: hoveredId === item.id ? 100 : 1 }}
                                                 onMouseEnter={() => setHoveredId(item.id)}
                                                 onMouseLeave={() => setHoveredId(null)}
@@ -190,6 +203,7 @@ export function CategoryGallery() {
                                                         navigate(`/project/${item.id}`);
                                                     } else {
                                                         setSelectedLightboxItem(item);
+                                                        setDescExpanded(false);
                                                     }
                                                 }}
                                             >
@@ -199,9 +213,9 @@ export function CategoryGallery() {
                                                     <div className="absolute inset-0 -z-10">
                                                         {/* Third Layer (Optional, furthest back) */}
                                                         {subImages.length > 1 && (
-                                                            <div className="absolute inset-0 bg-black overflow-hidden border border-white/10 rounded-sm translate-x-3 translate-y-3 -rotate-3 group-hover:translate-x-8 group-hover:translate-y-6 group-hover:-rotate-12 transition-all duration-1000 delay-75 shadow-2xl">
+                                                            <div className="absolute inset-0 bg-black overflow-hidden border border-white/10 rounded-sm translate-x-3 translate-y-3 -rotate-3 group-hover:translate-x-6 group-hover:translate-y-4 group-hover:-rotate-6 transition-all duration-1000 delay-75 shadow-2xl">
                                                                 <motion.img 
-                                                                    src={subImages[1]} 
+                                                                    src={`${API_URL}/api/thumb?path=${encodeURIComponent(subImages[1])}`} 
                                                                     loading="lazy"
                                                                     initial={{ opacity: 0 }}
                                                                     whileInView={{ opacity: 0.6 }}
@@ -212,9 +226,9 @@ export function CategoryGallery() {
                                                         )}
                                                         {/* Second Layer */}
                                                         {subImages.length > 0 ? (
-                                                            <div className="absolute inset-0 bg-black overflow-hidden border border-white/10 rounded-sm translate-x-1.5 translate-y-1.5 rotate-2 group-hover:-translate-x-6 group-hover:translate-y-4 group-hover:rotate-6 transition-all duration-1000 shadow-2xl">
+                                                            <div className="absolute inset-0 bg-black overflow-hidden border border-white/10 rounded-sm translate-x-1.5 translate-y-1.5 rotate-2 group-hover:-translate-x-4 group-hover:translate-y-2 group-hover:rotate-3 transition-all duration-1000 shadow-2xl">
                                                                 <motion.img 
-                                                                    src={subImages[0]} 
+                                                                    src={`${API_URL}/api/thumb?path=${encodeURIComponent(subImages[0])}`} 
                                                                     loading="lazy"
                                                                     initial={{ opacity: 0 }}
                                                                     whileInView={{ opacity: 0.6 }}
@@ -233,7 +247,7 @@ export function CategoryGallery() {
                                                     style={{ boxShadow: `0 0 40px ${CATEGORY_COLORS[item.category] ?? '#fff'}22` }}
                                                 >
                                                     <motion.img
-                                                        src={item.cover_asset}
+                                                        src={`${API_URL}/api/thumb?path=${encodeURIComponent(item.cover_asset)}`}
                                                         alt={item.title}
                                                         loading="lazy"
                                                         initial={{ opacity: 0 }}
@@ -285,12 +299,13 @@ export function CategoryGallery() {
                             <button onClick={() => setSelectedLightboxItem(null)} className="absolute top-8 right-8 z-[110] p-4 text-white hover:rotate-90 transition-transform duration-500">
                                 <X className="w-8 h-8" />
                             </button>
-                            <div className="relative z-[110] flex flex-col md:flex-row gap-12 max-w-7xl w-full items-center">
+                            <div className="relative z-[110] flex flex-col md:flex-row gap-12 max-w-7xl w-full items-center" onClick={() => setSelectedLightboxItem(null)}>
                                 <motion.div 
-                                    className="w-full md:w-3/5 aspect-[4/5] bg-white/5 overflow-hidden border border-white/10"
+                                    className="w-full md:w-3/5 flex items-center justify-center bg-white/5 border border-white/10 p-4 min-h-[40vh]"
                                     initial={{ scale: 0.9, opacity: 0 }}
                                     animate={{ scale: 1, opacity: 1 }}
                                     transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                                    onClick={(e: React.MouseEvent) => e.stopPropagation()}
                                 >
                                     <motion.img 
                                         src={selectedLightboxItem.cover_asset} 
@@ -298,10 +313,10 @@ export function CategoryGallery() {
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         loading="lazy"
-                                        className="w-full h-full object-cover" 
+                                        className="max-w-full max-h-[75vh] object-contain shadow-2xl" 
                                     />
                                 </motion.div>
-                                <div className="w-full md:w-2/5 flex flex-col gap-8">
+                                <div className="w-full md:w-2/5 flex flex-col gap-8" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                                     <div>
                                         <motion.span initial={{ opacity: 0, x: -20 }} animate={{ opacity: 0.4, x: 0 }} transition={{ delay: 0.3 }} className="text-xs tracking-[0.5em] font-bold uppercase block">
                                             {selectedLightboxItem.category} &bull; {selectedLightboxItem.item_type}
@@ -311,9 +326,21 @@ export function CategoryGallery() {
                                         </motion.h2>
                                     </div>
                                     {selectedLightboxItem.description && (
-                                        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 0.6 }} transition={{ delay: 0.6 }} className="text-sm md:text-lg leading-relaxed max-w-md">
-                                            {selectedLightboxItem.description}
-                                        </motion.p>
+                                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}>
+                                            <p className={`text-sm md:text-base leading-relaxed max-w-md whitespace-pre-wrap break-words opacity-60 transition-all ${
+                                                descExpanded ? '' : 'line-clamp-4'
+                                            }`}>
+                                                {selectedLightboxItem.description}
+                                            </p>
+                                            {selectedLightboxItem.description.length > 200 && (
+                                                <button
+                                                    onClick={() => setDescExpanded(v => !v)}
+                                                    className="mt-2 text-[10px] font-bold tracking-[0.3em] uppercase opacity-40 hover:opacity-100 transition-opacity"
+                                                >
+                                                    {descExpanded ? 'See Less ↑' : 'See More ↓'}
+                                                </button>
+                                            )}
+                                        </motion.div>
                                     )}
                                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }} className="flex gap-6 mt-4">
                                         <button className="flex items-center gap-3 px-8 py-4 bg-white text-black text-xs font-bold tracking-[0.2em] hover:scale-105 transition-transform">

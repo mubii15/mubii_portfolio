@@ -38,14 +38,14 @@ export function AdminShop() {
                 {view === 'list' ? (
                     <button 
                         onClick={() => setView('add')}
-                        className="flex items-center gap-3 px-8 py-3 bg-cyan-500 text-black text-[10px] font-black tracking-widest uppercase rounded-xl hover:scale-105 transition-all shadow-[0_0_30px_rgba(6,182,212,0.4)]"
+                        className="flex items-center gap-3 px-8 py-3 bg-white text-black text-[10px] font-black tracking-widest uppercase rounded-sm hover:scale-105 transition-all shadow-[0_0_30px_rgba(255,255,255,0.4)]"
                     >
                         <Plus className="w-4 h-4" /> Add Product
                     </button>
                 ) : (
                     <button 
                         onClick={() => setView('list')}
-                        className="flex items-center gap-3 px-6 py-3 bg-white/5 border border-white/10 text-white text-[10px] font-black tracking-widest uppercase rounded-xl hover:bg-white/10 transition-all"
+                        className="flex items-center gap-3 px-6 py-3 bg-white/5 border border-white/10 text-white text-[10px] font-black tracking-widest uppercase rounded-sm hover:bg-white/10 transition-all"
                     >
                         <ChevronRight className="w-4 h-4 rotate-180" /> Back to List
                     </button>
@@ -78,19 +78,19 @@ export function AdminShop() {
                                     {MOCK_PRODUCTS.map((product) => (
                                         <tr key={product.id} className="group hover:bg-white/[0.02] transition-colors">
                                             <td className="px-10 py-6">
-                                                <div className="w-14 h-14 rounded-xl overflow-hidden border border-white/10 group-hover:border-cyan-500/40 transition-colors">
+                                                <div className="w-14 h-14 rounded-sm overflow-hidden border border-white/10 group-hover:border-white/40 transition-colors">
                                                     <img src={product.image} className="w-full h-full object-cover" alt="" />
                                                 </div>
                                             </td>
                                             <td className="px-10 py-6">
                                                 <div className="flex flex-col">
-                                                    <span className="text-sm font-bold text-white uppercase tracking-tight group-hover:text-cyan-400 transition-colors">{product.name}</span>
+                                                    <span className="text-sm font-bold text-white uppercase tracking-tight group-hover:text-white/70 transition-colors">{product.name}</span>
                                                     <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">ID: {product.id}0426</span>
                                                 </div>
                                             </td>
                                             <td className="px-10 py-6">
                                                 <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border
-                                                    ${product.type === 'Digital' ? 'border-purple-500/30 text-purple-400 bg-purple-500/5' : 'border-cyan-500/30 text-cyan-400 bg-cyan-500/5'}
+                                                    ${product.type === 'Digital' ? 'border-purple-500/30 text-purple-400 bg-purple-500/5' : 'border-white/30 text-white/70 bg-white/5'}
                                                 `}>
                                                     {product.type}
                                                 </span>
@@ -125,7 +125,7 @@ export function AdminShop() {
                         <div className="lg:col-span-2 space-y-10">
                             <section className="bg-white/[0.02] border border-white/5 p-10 rounded-[40px] space-y-8">
                                 <div className="flex items-center gap-4 mb-4">
-                                     <div className="w-10 h-10 bg-cyan-500/10 rounded-full flex items-center justify-center text-cyan-500">
+                                     <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white">
                                         <Package className="w-5 h-5" />
                                      </div>
                                      <h3 className="text-xl font-bold tracking-tighter uppercase italic">Product Spec</h3>
@@ -159,33 +159,33 @@ export function AdminShop() {
                                 </div>
                             </section>
 
-                            <button className="w-full py-6 bg-cyan-500 text-black text-[13px] font-black uppercase tracking-[0.4em] rounded-[24px] hover:scale-[1.02] active:scale-95 transition-all shadow-[0_0_50px_rgba(6,182,212,0.3)]">
+                            <button className="w-full py-6 bg-white text-black text-[13px] font-black uppercase tracking-[0.4em] rounded-lg hover:scale-[1.02] active:scale-95 transition-all shadow-[0_0_50px_rgba(255,255,255,0.3)]">
                                 Launch to Storefront
                             </button>
                         </div>
 
                         {/* RIGHT: MEDIA & INVENTORY */}
                         <div className="lg:col-span-1 space-y-8">
-                            <section className="bg-white/[0.02] border border-white/5 p-8 rounded-[32px] space-y-6">
+                            <section className="bg-white/[0.02] border border-white/5 p-8 rounded-sm space-y-6">
                                  <h3 className="text-[10px] font-black tracking-[0.4em] uppercase text-white/20 flex items-center gap-2">
                                     <ImageIcon className="w-3.5 h-3.5" /> Product Media
                                  </h3>
-                                 <div className="aspect-square bg-black border-2 border-dashed border-white/5 rounded-2xl flex flex-col items-center justify-center p-6 text-center gap-4 group cursor-pointer hover:border-cyan-500/30 transition-all">
-                                    <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center group-hover:scale-110 group-hover:bg-cyan-500 group-hover:text-black transition-all">
+                                 <div className="aspect-square bg-black border-2 border-dashed border-white/5 rounded-md flex flex-col items-center justify-center p-6 text-center gap-4 group cursor-pointer hover:border-white/30 transition-all">
+                                    <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center group-hover:scale-110 group-hover:bg-white group-hover:text-black transition-all">
                                         <Plus className="w-5 h-5" />
                                     </div>
                                     <span className="text-[9px] font-bold uppercase tracking-widest text-slate-600">Add Hero View</span>
                                  </div>
                             </section>
 
-                            <section className="bg-white/[0.02] border border-white/5 p-8 rounded-[32px] space-y-6">
+                            <section className="bg-white/[0.02] border border-white/5 p-8 rounded-sm space-y-6">
                                  <h3 className="text-[10px] font-black tracking-[0.4em] uppercase text-white/20 flex items-center gap-2">
                                     <Package className="w-3.5 h-3.5" /> Inventory
                                  </h3>
                                  <ShopInput label="Stock Quantity" placeholder={productType === 'Digital' ? '∞' : '0'} />
-                                 <div className="flex items-center gap-3 p-4 bg-cyan-500/5 border border-cyan-500/10 rounded-xl">
-                                    <CheckCircle2 className="w-4 h-4 text-cyan-500" />
-                                    <span className="text-[9px] font-bold text-cyan-400 uppercase tracking-widest">Active on storefront</span>
+                                 <div className="flex items-center gap-3 p-4 bg-white/5 border border-white/10 rounded-sm">
+                                    <CheckCircle2 className="w-4 h-4 text-white" />
+                                    <span className="text-[9px] font-bold text-white/70 uppercase tracking-widest">Active on storefront</span>
                                  </div>
                             </section>
                         </div>
@@ -205,13 +205,13 @@ function ShopInput({ label, placeholder, isTextArea = false, icon: Icon }: any) 
                 {isTextArea ? (
                     <textarea 
                         placeholder={placeholder}
-                        className="w-full bg-black/50 border border-white/10 rounded-2xl p-5 text-sm font-medium focus:border-cyan-500 outline-none transition-all placeholder:text-white/5 min-h-[120px]"
+                        className="w-full bg-black/50 border border-white/10 rounded-md p-5 text-sm font-medium focus:border-white outline-none transition-all placeholder:text-white/5 min-h-[120px]"
                     />
                 ) : (
                     <input 
                         type="text"
                         placeholder={placeholder}
-                        className={`w-full bg-black/50 border border-white/10 rounded-2xl p-5 text-sm font-medium focus:border-cyan-500 outline-none transition-all placeholder:text-white/5 ${Icon ? 'pl-14' : ''}`}
+                        className={`w-full bg-black/50 border border-white/10 rounded-md p-5 text-sm font-medium focus:border-white outline-none transition-all placeholder:text-white/5 ${Icon ? 'pl-14' : ''}`}
                     />
                 )}
             </div>
@@ -223,11 +223,11 @@ function TypeCard({ active, onClick, icon: Icon, title, desc }: any) {
     return (
         <button 
             onClick={onClick}
-            className={`text-left p-6 rounded-2xl border transition-all
+            className={`text-left p-6 rounded-md border transition-all
                 ${active ? 'bg-white text-black border-white' : 'bg-black/50 border-white/10 text-white/40 hover:border-white/20'}
             `}
         >
-            <Icon className={`w-6 h-6 mb-4 ${active ? 'text-black' : 'text-cyan-500'}`} />
+            <Icon className={`w-6 h-6 mb-4 ${active ? 'text-black' : 'text-white'}`} />
             <div className="flex flex-col gap-1">
                 <span className="text-[11px] font-black uppercase tracking-widest">{title}</span>
                 <span className="text-[9px] font-bold opacity-60 uppercase leading-relaxed">{desc}</span>

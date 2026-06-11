@@ -140,7 +140,7 @@ export function AdminUpload() {
                 category,
                 status: 'published',
                 cover_asset: coverAsset,
-                item_type: uploadType === 'single' ? 'single' : 'project',
+                item_type: (uploadType === 'single' && !isVideoCategory) ? 'single' : 'project',
                 date: date ? date.toISOString().split('T')[0] : null,
                 video_link: videoLink || null,
                 blocks: projectAssets.map(url => ({ type: 'image', data: { url } }))
@@ -162,7 +162,7 @@ export function AdminUpload() {
                     <div 
                         key={s}
                         className={`w-1.5 h-1.5 rounded-full transition-all duration-700
-                            ${step === s ? 'scale-[2.5] bg-cyan-500 shadow-[0_0_15px_rgba(6,182,212,0.6)]' : 
+                            ${step === s ? 'scale-[2.5] bg-white shadow-[0_0_15px_rgba(255,255,255,0.6)]' : 
                               typeof step === 'number' && step > s ? 'bg-white opacity-40' : 'bg-white/10'}
                         `}
                     />
@@ -201,7 +201,7 @@ export function AdminUpload() {
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -20 }}
-                        className="w-full max-w-2xl bg-white/[0.02] border border-white/5 p-12 rounded-[48px] backdrop-blur-3xl"
+                        className="w-full max-w-2xl bg-white/[0.02] border border-white/5 p-12 rounded-md backdrop-blur-3xl"
                     >
                         <div className="flex items-center gap-4 mb-12">
                              <button onClick={handleBack} className="p-3 hover:bg-white/5 rounded-full transition-all"><ChevronLeft className="w-5 h-5"/></button>
@@ -221,7 +221,7 @@ export function AdminUpload() {
                                         <select 
                                             value={category}
                                             onChange={(e) => setCategory(e.target.value)}
-                                            className="w-full bg-black border border-white/10 rounded-2xl p-5 text-xs font-bold tracking-widest uppercase appearance-none focus:border-cyan-500/50 outline-none transition-all cursor-pointer"
+                                            className="w-full bg-black border border-white/10 rounded-md p-5 text-xs font-bold tracking-widest uppercase appearance-none focus:border-white/50 outline-none transition-all cursor-pointer"
                                         >
                                             {CATEGORIES.map(cat => (
                                                 <option key={cat} value={cat}>{cat}</option>
@@ -243,7 +243,7 @@ export function AdminUpload() {
                                     <Popover>
                                         <PopoverTrigger asChild>
                                             <button
-                                                className={`w-full flex items-center bg-black border border-white/10 rounded-2xl p-5 text-xs font-bold tracking-widest uppercase focus:border-cyan-500/50 outline-none transition-all placeholder:opacity-10 justify-start text-left font-normal ${
+                                                className={`w-full flex items-center bg-black border border-white/10 rounded-md p-5 text-xs font-bold tracking-widest uppercase focus:border-white/50 outline-none transition-all placeholder:opacity-10 justify-start text-left font-normal ${
                                                     !date ? "text-white/30" : "text-white"
                                                 }`}
                                             >
@@ -259,9 +259,9 @@ export function AdminUpload() {
                                                 initialFocus
                                                 nav_button_previous="[&_svg]:text-white/50"
                                                 nav_button_next="[&_svg]:text-white/50"
-                                                className="bg-[#0a0a0a] text-white rounded-xl"
+                                                className="bg-[#0a0a0a] text-white rounded-sm"
                                                 classNames={{
-                                                    day_selected: "bg-cyan-500 text-black hover:bg-cyan-400 hover:text-black focus:bg-cyan-500 focus:text-black",
+                                                    day_selected: "bg-white text-black hover:bg-white/70 hover:text-black focus:bg-white focus:text-black",
                                                     day_today: "bg-white/10 text-white",
                                                     day: "text-white hover:bg-white/10 transition-colors w-8 h-8 rounded-md mx-auto flex items-center justify-center",
                                                     caption_label: "text-white font-bold tracking-widest uppercase",
@@ -276,7 +276,7 @@ export function AdminUpload() {
 
                              <button 
                                 onClick={handleNext}
-                                className="w-full py-6 bg-white text-black text-[11px] font-black tracking-[0.4em] uppercase hover:scale-[1.02] active:scale-95 transition-all mt-4 rounded-2xl"
+                                className="w-full py-6 bg-white text-black text-[11px] font-black tracking-[0.4em] uppercase hover:scale-[1.02] active:scale-95 transition-all mt-4 rounded-md"
                              >
                                 Continue to Assets
                              </button>
@@ -300,20 +300,20 @@ export function AdminUpload() {
                                 <h2 className="text-3xl font-black tracking-tighter uppercase italic">Delivery</h2>
                             </div>
                             
-                            <div className="p-8 bg-cyan-500/5 border border-cyan-500/10 rounded-[32px] space-y-4">
-                                <h4 className="text-[10px] font-black uppercase tracking-widest text-cyan-500">Asset Specs Required:</h4>
+                            <div className="p-8 bg-white/5 border border-white/10 rounded-sm space-y-4">
+                                <h4 className="text-[10px] font-black uppercase tracking-widest text-white">Asset Specs Required:</h4>
                                 <ul className="space-y-3">
                                     <li className="flex items-start gap-3 text-[10px] font-bold text-white/40 uppercase tracking-tight">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-cyan-500 mt-1" />
+                                        <div className="w-1.5 h-1.5 rounded-full bg-white mt-1" />
                                         Master thumbnail must be 4:5 or 16:9
                                     </li>
                                     <li className="flex items-start gap-3 text-[10px] font-bold text-white/40 uppercase tracking-tight">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-cyan-500 mt-1" />
+                                        <div className="w-1.5 h-1.5 rounded-full bg-white mt-1" />
                                         Max file size: 50MB per asset
                                     </li>
                                     {isVideoCategory && (
                                         <li className="flex items-start gap-3 text-[10px] font-bold text-white/40 uppercase tracking-tight">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-cyan-500 mt-1" />
+                                            <div className="w-1.5 h-1.5 rounded-full bg-white mt-1" />
                                             Embed links must be Vimeo or YT
                                         </li>
                                     )}
@@ -336,8 +336,8 @@ export function AdminUpload() {
                              {/* MAIN DROPZONE */}
                              <div 
                                 onClick={() => fileInputRef.current?.click()}
-                                className={`border-2 border-dashed rounded-[48px] p-20 flex flex-col items-center justify-center text-center gap-6 group transition-all cursor-pointer relative overflow-hidden
-                                    ${coverAsset ? 'border-cyan-500/50 bg-black/40' : 'border-white/5 bg-white/[0.01] hover:border-cyan-500/40'}
+                                className={`border-2 border-dashed rounded-md p-20 flex flex-col items-center justify-center text-center gap-6 group transition-all cursor-pointer relative overflow-hidden
+                                    ${coverAsset ? 'border-white/50 bg-black/40' : 'border-white/5 bg-white/[0.01] hover:border-white/40'}
                                 `}
                              >
                                 <input 
@@ -351,7 +351,7 @@ export function AdminUpload() {
                                 {coverAsset ? (
                                     <>
                                         <img src={coverAsset} alt="Cover Preview" className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity" />
-                                        <div className="relative z-10 w-16 h-16 rounded-full bg-cyan-500/20 backdrop-blur-md flex items-center justify-center group-hover:scale-110 group-hover:bg-cyan-500 group-hover:text-black transition-all duration-500 text-cyan-500">
+                                        <div className="relative z-10 w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center group-hover:scale-110 group-hover:bg-white group-hover:text-black transition-all duration-500 text-white">
                                             <CheckCircle2 className="w-6 h-6" />
                                         </div>
                                         <h3 className="relative z-10 text-xl font-bold tracking-tighter uppercase italic shadow-black/50 drop-shadow-lg">
@@ -360,7 +360,7 @@ export function AdminUpload() {
                                     </>
                                 ) : (
                                     <>
-                                        <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center group-hover:scale-110 group-hover:bg-cyan-500 group-hover:text-black transition-all duration-500">
+                                        <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center group-hover:scale-110 group-hover:bg-white group-hover:text-black transition-all duration-500">
                                             {isUploading ? <div className="animate-spin w-6 h-6 border-2 border-current border-t-transparent rounded-full" /> : <Upload className="w-8 h-8" />}
                                         </div>
                                         <div className="space-y-3 relative z-10 w-full px-4">
@@ -373,7 +373,7 @@ export function AdminUpload() {
                                              {isUploading && (
                                                  <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
                                                      <div
-                                                         className="h-full bg-cyan-500 rounded-full transition-all duration-300"
+                                                         className="h-full bg-white rounded-full transition-all duration-300"
                                                          style={{ width: `${uploadProgress}%` }}
                                                      />
                                                  </div>
@@ -390,7 +390,7 @@ export function AdminUpload() {
                                         <h4 className="text-[10px] font-black uppercase tracking-widest opacity-40">
                                             {uploadType === 'project' ? 'Collection Assets' : 'Frame Previews'}
                                         </h4>
-                                        <span className="text-[8px] font-black text-cyan-500 uppercase tracking-widest italic">Multi-upload active</span>
+                                        <span className="text-[8px] font-black text-white uppercase tracking-widest italic">Multi-upload active</span>
                                      </div>
                                      
                                      <input 
@@ -404,7 +404,7 @@ export function AdminUpload() {
 
                                      <div className="grid grid-cols-3 gap-4">
                                         {projectAssets.map((url, idx) => (
-                                            <div key={idx} className="aspect-square bg-black border border-white/10 rounded-2xl overflow-hidden relative group">
+                                            <div key={idx} className="aspect-square bg-black border border-white/10 rounded-md overflow-hidden relative group">
                                                 <img src={url} alt={`Asset ${idx}`} className="w-full h-full object-cover" />
                                                 <button 
                                                    onClick={() => setProjectAssets(projectAssets.filter((_, i) => i !== idx))}
@@ -416,7 +416,7 @@ export function AdminUpload() {
                                         ))}
                                         <button 
                                            onClick={() => multiFileInputRef.current?.click()}
-                                           className="aspect-square bg-black border border-white/5 rounded-2xl flex items-center justify-center group cursor-pointer hover:border-white/20 transition-all"
+                                           className="aspect-square bg-black border border-white/5 rounded-md flex items-center justify-center group cursor-pointer hover:border-white/20 transition-all"
                                         >
                                             <Plus className="w-4 h-4 opacity-20 group-hover:opacity-100 transition-opacity" />
                                         </button>
@@ -427,7 +427,7 @@ export function AdminUpload() {
                              <button 
                                 onClick={handleFinalize}
                                 disabled={isFinalizing}
-                                className={`w-full py-6 bg-cyan-500 text-black text-[12px] font-black tracking-[0.5em] uppercase transition-all mt-4 rounded-2xl shadow-[0_0_50px_rgba(6,182,212,0.3)] flex items-center justify-center gap-4
+                                className={`w-full py-6 bg-white text-black text-[12px] font-black tracking-[0.5em] uppercase transition-all mt-4 rounded-md shadow-[0_0_50px_rgba(255,255,255,0.3)] flex items-center justify-center gap-4
                                     ${isFinalizing ? 'opacity-70 cursor-not-allowed' : 'hover:scale-[1.02] active:scale-95'}
                                 `}
                              >
@@ -453,13 +453,13 @@ export function AdminUpload() {
                         className="text-center space-y-10"
                     >
                         <div className="relative">
-                            <div className="w-32 h-32 bg-cyan-500/10 rounded-full flex items-center justify-center mx-auto">
-                                <CheckCircle2 className="w-16 h-16 text-cyan-500 shadow-[0_0_30px_rgba(6,182,212,0.4)]" />
+                            <div className="w-32 h-32 bg-white/10 rounded-full flex items-center justify-center mx-auto">
+                                <CheckCircle2 className="w-16 h-16 text-white shadow-[0_0_30px_rgba(255,255,255,0.4)]" />
                             </div>
                             <motion.div 
                                 animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.3, 0.1] }}
                                 transition={{ repeat: Infinity, duration: 3 }}
-                                className="absolute inset-0 bg-cyan-500/10 rounded-full blur-3xl -z-10"
+                                className="absolute inset-0 bg-white/10 rounded-full blur-3xl -z-10"
                             />
                         </div>
                         <div>
@@ -467,8 +467,8 @@ export function AdminUpload() {
                              <p className="text-[10px] tracking-[0.4em] font-bold opacity-30 mt-4 uppercase">Asset integrated into the studio ecosystem</p>
                         </div>
                         <div className="flex gap-4 justify-center">
-                            <button onClick={() => setStep(1)} className="px-12 py-4 border border-white/10 rounded-2xl text-[10px] font-black tracking-widest uppercase hover:bg-white/5 transition-all">Archive Another</button>
-                            <button onClick={() => navigate('/admin/projects')} className="px-12 py-4 bg-white text-black rounded-2xl text-[10px] font-black tracking-widest uppercase hover:scale-105 transition-all">View Archive</button>
+                            <button onClick={() => setStep(1)} className="px-12 py-4 border border-white/10 rounded-md text-[10px] font-black tracking-widest uppercase hover:bg-white/5 transition-all">Archive Another</button>
+                            <button onClick={() => navigate('/admin/projects')} className="px-12 py-4 bg-white text-black rounded-md text-[10px] font-black tracking-widest uppercase hover:scale-105 transition-all">View Archive</button>
                         </div>
                     </motion.div>
                 )}
@@ -487,13 +487,13 @@ export function AdminUpload() {
                             <div className="relative mx-auto w-24 h-24 flex items-center justify-center">
                                 <div className="absolute inset-0 border-4 border-white/5 rounded-full" />
                                 <div 
-                                    className="absolute inset-0 border-4 border-cyan-500 rounded-full transition-all duration-500 ease-out" 
+                                    className="absolute inset-0 border-4 border-white rounded-full transition-all duration-500 ease-out" 
                                     style={{ 
                                         clipPath: `inset(${100 - uploadProgress}% 0 0 0)`,
-                                        filter: 'drop-shadow(0 0 10px rgba(6,182,212,0.5))'
+                                        filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.5))'
                                     }}
                                 />
-                                <Upload className="w-8 h-8 text-cyan-500 animate-bounce" />
+                                <Upload className="w-8 h-8 text-white animate-bounce" />
                             </div>
                             <div className="space-y-2">
                                 <h3 className="text-3xl font-black tracking-tighter uppercase italic leading-none">Uploading Gallery</h3>
@@ -501,7 +501,7 @@ export function AdminUpload() {
                             </div>
                             <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.5)]">
                                 <motion.div 
-                                    className="h-full bg-cyan-500 shadow-[0_0_20px_rgba(6,182,212,0.5)]"
+                                    className="h-full bg-white shadow-[0_0_20px_rgba(255,255,255,0.5)]"
                                     animate={{ width: `${uploadProgress}%` }}
                                 />
                             </div>
@@ -517,19 +517,19 @@ function UploadCard({ icon: Icon, title, desc, onClick }: { icon: any, title: st
     return (
         <button 
             onClick={onClick}
-            className="group relative bg-[#0a0a0a] border border-white/5 p-16 rounded-[56px] text-left hover:border-cyan-500/50 transition-all overflow-hidden shadow-2xl"
+            className="group relative bg-[#0a0a0a] border border-white/5 p-16 rounded-[56px] text-left hover:border-white/50 transition-all overflow-hidden shadow-2xl"
         >
-            <div className="absolute inset-0 bg-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+            <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
             <div className="relative z-10 space-y-8">
-                <div className="w-20 h-20 bg-white/[0.02] border border-white/5 rounded-full flex items-center justify-center group-hover:scale-[1.15] group-hover:bg-cyan-500 text-white group-hover:text-black transition-all duration-700">
+                <div className="w-20 h-20 bg-white/[0.02] border border-white/5 rounded-full flex items-center justify-center group-hover:scale-[1.15] group-hover:bg-white text-white group-hover:text-black transition-all duration-700">
                     <Icon className="w-10 h-10" />
                 </div>
                 <div className="space-y-3">
                     <h3 className="text-5xl font-black tracking-tighter uppercase italic group-hover:translate-x-4 transition-transform duration-700 leading-none">{title}</h3>
                     <p className="text-[11px] tracking-[0.25em] font-bold opacity-20 uppercase mt-2 group-hover:opacity-60 transition-opacity duration-700">{desc}</p>
                 </div>
-                <div className="flex items-center gap-3 text-cyan-500 text-[10px] font-black tracking-[0.4em] opacity-0 group-hover:opacity-100 translate-x-[-20px] group-hover:translate-x-0 transition-all duration-700 uppercase">
-                    Select <div className="w-8 h-[2px] bg-cyan-500" />
+                <div className="flex items-center gap-3 text-white text-[10px] font-black tracking-[0.4em] opacity-0 group-hover:opacity-100 translate-x-[-20px] group-hover:translate-x-0 transition-all duration-700 uppercase">
+                    Select <div className="w-8 h-[2px] bg-white" />
                 </div>
             </div>
         </button>
@@ -541,13 +541,13 @@ function FormInput({ label, placeholder, isTextArea = false, value, onChange, ic
         <div className="space-y-4">
             <label className="text-[10px] tracking-[0.4em] font-black opacity-30 uppercase block px-1">{label}</label>
             <div className="relative group">
-                {Icon && <Icon className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-white/10 group-focus-within:text-cyan-500 transition-colors" />}
+                {Icon && <Icon className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-white/10 group-focus-within:text-white transition-colors" />}
                 {isTextArea ? (
                     <textarea 
                         value={value}
                         onChange={(e) => onChange(e.target.value)}
                         placeholder={placeholder}
-                        className="w-full bg-black border border-white/10 rounded-3xl p-6 text-sm font-bold tracking-tight h-40 focus:border-cyan-500/50 outline-none transition-all placeholder:opacity-10"
+                        className="w-full bg-black border border-white/10 rounded-3xl p-6 text-sm font-bold tracking-tight h-40 focus:border-white/50 outline-none transition-all placeholder:opacity-10"
                     />
                 ) : (
                     <input 
@@ -555,7 +555,7 @@ function FormInput({ label, placeholder, isTextArea = false, value, onChange, ic
                         value={value}
                         onChange={(e) => onChange(e.target.value)}
                         placeholder={placeholder}
-                        className={`w-full bg-black border border-white/10 rounded-2xl p-5 text-xs font-bold tracking-widest uppercase focus:border-cyan-500/50 outline-none transition-all placeholder:opacity-10 ${Icon ? 'pl-16' : ''}`}
+                        className={`w-full bg-black border border-white/10 rounded-md p-5 text-xs font-bold tracking-widest uppercase focus:border-white/50 outline-none transition-all placeholder:opacity-10 ${Icon ? 'pl-16' : ''}`}
                     />
                 )}
             </div>

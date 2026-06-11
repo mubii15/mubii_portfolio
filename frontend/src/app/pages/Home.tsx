@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import axios from 'axios';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 const CATEGORY_KEYS = ['PHOTOGRAPHY', 'CINEMATOGRAPHY', 'VFX', 'CONTEMPORARY ART'];
@@ -17,6 +18,7 @@ import img4 from '../../assets/images/img4.png';
 const FALLBACKS = [img1, img2, img3, img4];
 
 export function Home() {
+  useDocumentTitle('Home');
   const [portfolioImages, setPortfolioImages] = useState<string[]>(FALLBACKS);
   const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -42,11 +44,12 @@ export function Home() {
         const published = data.filter((p: any) => p.status === 'published');
         const built: CategoryData[] = CATEGORY_KEYS.map(cat => {
           const catKey = cat === 'VFX' ? 'VFX' : cat;
-          const items = published
-            .filter((p: any) => p.category === catKey)
-            .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-            .slice(0, 3);
-          return { name: cat, items };
+          const categoryProjects = published.filter((p: any) => p.category === catKey);
+
+          // Shuffle and take 5 random projects/singles
+          const shuffled = categoryProjects.sort(() => Math.random() - 0.5).slice(0, 5);
+          
+          return { name: cat, items: shuffled };
         });
         setCategoryData(built);
       })
@@ -91,8 +94,8 @@ export function Home() {
 
       {/* Background Gradients & Lava Lamp Effect (Fixed) */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] bg-purple-900/10 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-blue-900/10 rounded-full blur-[120px]" />
+        <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] bg-blue-900/10 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-cyan-900/5 rounded-full blur-[120px]" />
         
         {/* LAVA LAMP CIRCLES */}
         <motion.div 

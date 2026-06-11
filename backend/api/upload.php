@@ -78,8 +78,8 @@ if (!function_exists('imagewebp')) {
     exit;
 }
 
-// Convert and save as WebP with 80% quality compression
-$saved = imagewebp($image, $targetPath, 80);
+// Convert and save as WebP with 85% quality compression
+$saved = imagewebp($image, $targetPath, 85);
 
 if ($saved) {
     imagedestroy($image);

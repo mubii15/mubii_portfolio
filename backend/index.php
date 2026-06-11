@@ -57,6 +57,53 @@ if ($pathParts[0] !== 'api') {
             exit;
         }
     }
+    
+    // Dynamic Sitemap Generator
+    if ($requestPath === '/sitemap.xml') {
+        require_once 'config.php';
+        $db = getDB();
+        $stmt = $db->query("SELECT id, updated_at FROM projects WHERE status = 'published' ORDER BY updated_at DESC");
+        $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        $FRONTEND_URL = "https://mubarakismail.com"; // Replace with actual domain
+        
+        $xml = new XMLWriter();
+        $xml->openMemory();
+        $xml->setIndent(true);
+        $xml->startDocument('1.0', 'UTF-8');
+        $xml->startElement('urlset');
+        $xml->writeAttribute('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9');
+        
+        $staticRoutes = ['/', '/about', '/contact', '/gallery/all', '/gallery/photography', '/gallery/cinematography', '/gallery/vfx', '/gallery/contemporary-art'];
+        $now = date('Y-m-d');
+        
+        foreach ($staticRoutes as $route) {
+            $xml->startElement('url');
+            $xml->writeElement('loc', $FRONTEND_URL . $route);
+            $xml->writeElement('lastmod', $now);
+            $xml->writeElement('changefreq', 'weekly');
+            $xml->writeElement('priority', $route === '/' ? '1.0' : '0.8');
+            $xml->endElement();
+        }
+        
+        foreach ($projects as $project) {
+            $date = !empty($project['updated_at']) ? substr($project['updated_at'], 0, 10) : $now;
+            $xml->startElement('url');
+            $xml->writeElement('loc', $FRONTEND_URL . '/project/' . $project['id']);
+            $xml->writeElement('lastmod', $date);
+            $xml->writeElement('changefreq', 'monthly');
+            $xml->writeElement('priority', '0.6');
+            $xml->endElement();
+        }
+        
+        $xml->endElement();
+        $xml->endDocument();
+        
+        header("Content-Type: text/xml; charset=UTF-8");
+        echo $xml->outputMemory();
+        exit;
+    }
+
     http_response_code(404);
     echo json_encode(["error" => "Not found", "path" => $requestPath]);
     exit;
@@ -70,6 +117,12 @@ if ($resource === 'projects') {
     require_once 'api/upload.php';
 } elseif ($resource === 'thumbnails') {
     require_once 'api/thumbnails.php';
+} elseif ($resource === 'thumb') {
+    require_once 'api/thumb.php';
+} elseif ($resource === 'stats') {
+    require_once 'api/stats.php';
+} elseif ($resource === 'settings') {
+    require_once 'api/settings.php';
 } else {
     http_response_code(404);
     echo json_encode(["error" => "API endpoint not found"]);
