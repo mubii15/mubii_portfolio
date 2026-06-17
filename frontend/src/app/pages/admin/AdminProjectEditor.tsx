@@ -19,7 +19,7 @@ import {
 import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+const API_URL = import.meta.env.VITE_API_URL || 'https://mubii.com.ng';
 
 type BlockType = 'gallery' | 'video' | 'text';
 

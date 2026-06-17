@@ -1,6 +1,13 @@
 <?php
 // backend/api/settings.php
-if (!isset($pdo)) exit;
+if (!$pdo) {
+    http_response_code(503);
+    echo json_encode([
+        "error" => "Database unavailable",
+        "details" => "The settings API requires a working database connection."
+    ]);
+    exit;
+}
 
 // Ensure table exists
 $pdo->exec("CREATE TABLE IF NOT EXISTS settings (

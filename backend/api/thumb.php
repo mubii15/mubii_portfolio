@@ -1,6 +1,4 @@
 <?php
-if (!isset($pdo)) exit;
-
 $pathParam = $_GET['path'] ?? '';
 if (!$pathParam) {
     http_response_code(400);
@@ -78,10 +76,10 @@ if (!file_exists($cacheFile)) {
 
 // If we failed to generate cache for some reason, redirect to original URL
 if (!file_exists($cacheFile)) {
-    header("Location: http://localhost:8080/uploads/" . $relativePath);
+    header("Location: " . APP_URL . "/uploads/" . $relativePath);
     exit;
 }
 
 // Redirect to cached file
-header("Location: http://localhost:8080/uploads/cache/" . $cacheFileName);
+header("Location: " . APP_URL . "/uploads/cache/" . $cacheFileName);
 exit;

@@ -44,7 +44,7 @@ require_once 'config.php';
 $requestPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $pathParts = explode('/', trim($requestPath, '/'));
 
-// It might be accessed as http://localhost:8080/api/projects
+// It might be accessed as https://mubii.com.ng/api/projects
 // The URL path could be /api/projects
 if ($pathParts[0] !== 'api') {
     // Also try serving uploaded files
@@ -65,7 +65,7 @@ if ($pathParts[0] !== 'api') {
         $stmt = $db->query("SELECT id, updated_at FROM projects WHERE status = 'published' ORDER BY updated_at DESC");
         $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        $FRONTEND_URL = "https://mubarakismail.com"; // Replace with actual domain
+        $FRONTEND_URL = defined('APP_URL') ? APP_URL : (getenv('APP_URL') ?: getenv('SITE_URL') ?: 'https://mubii.com.ng');
         
         $xml = new XMLWriter();
         $xml->openMemory();
@@ -110,6 +110,16 @@ if ($pathParts[0] !== 'api') {
 }
 
 $resource = $pathParts[1] ?? null;
+
+$requiresDb = in_array($resource, ['projects', 'thumbnails', 'thumb', 'stats', 'settings'], true);
+if ($requiresDb && !$pdo) {
+    http_response_code(503);
+    echo json_encode([
+        "error" => "Database unavailable",
+        "details" => "The API request requires a working database connection."
+    ]);
+    exit;
+}
 
 if ($resource === 'projects') {
     require_once 'api/projects.php';

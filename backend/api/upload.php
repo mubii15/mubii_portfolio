@@ -1,6 +1,5 @@
 <?php
 // Ensure this is only accessed via index.php
-if (!isset($pdo)) exit;
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -10,11 +9,23 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
     http_response_code(400);
-    echo json_encode(["error" => "No file uploaded or upload error", "details" => $_FILES['file']['error'] ?? 'No file key']);
+    echo json_encode([
+        "error" => "No file uploaded or upload error",
+        "details" => $_FILES['file']['error'] ?? 'No file key',
+        "php_upload_max_filesize" => ini_get('upload_max_filesize'),
+        "php_post_max_size" => ini_get('post_max_size')
+    ]);
     exit;
 }
 
 $file = $_FILES['file'];
+$tmpName = $file['tmp_name'];
+if (!is_uploaded_file($tmpName)) {
+    http_response_code(400);
+    echo json_encode(["error" => "Invalid uploaded file."]);
+    exit;
+}
+
 $fileName = basename($file['name']);
 $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
@@ -36,10 +47,18 @@ if (!is_dir($uploadDir)) {
     mkdir($uploadDir, 0777, true);
 }
 
+if (!extension_loaded('gd') || !function_exists('imagecreatefromjpeg') || !function_exists('imagecreatefrompng') || !function_exists('imagewebp')) {
+    http_response_code(500);
+    echo json_encode([
+        "error" => "Image processing is not available on this server.",
+        "details" => "GD extension or WebP support is missing."
+    ]);
+    exit;
+}
+
 // Generate unique WebP filename
 $uniqueName = uniqid() . '-' . time() . '.webp';
 $targetPath = $uploadDir . $uniqueName;
-$tmpName = $file['tmp_name'];
 
 // Create image resource from temp file
 $image = null;
@@ -84,7 +103,7 @@ $saved = imagewebp($image, $targetPath, 85);
 if ($saved) {
     imagedestroy($image);
     // URL accessible from the frontend via nginx/apache proxy
-    $url = 'http://localhost:8080/uploads/' . $relativeSubDir . $uniqueName;
+    $url = APP_URL . '/uploads/' . $relativeSubDir . $uniqueName;
     echo json_encode(["success" => true, "url" => $url]);
 } else {
     $err = error_get_last();

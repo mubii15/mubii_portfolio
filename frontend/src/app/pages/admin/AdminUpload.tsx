@@ -24,7 +24,7 @@ import axios from 'axios';
 
 type Step = 1 | 2 | 3 | 'success';
 type UploadType = 'single' | 'project' | null;
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+const API_URL = import.meta.env.VITE_API_URL || 'https://mubii.com.ng';
 
 export function AdminUpload() {
     const navigate = useNavigate();
@@ -57,7 +57,6 @@ export function AdminUpload() {
 
         try {
             const { data } = await axios.post(`${API_URL}/api/upload`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
                 onUploadProgress: (evt) => {
                     if (evt.total) {
                         setUploadProgress(Math.round((evt.loaded * 100) / evt.total));

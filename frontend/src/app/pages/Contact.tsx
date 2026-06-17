@@ -7,26 +7,26 @@ export function Contact() {
     const contactSections = [
         {
             title: 'General Inquiries',
-            info: 'work@mubarakismail.studio',
+            info: 'work@mubii.com.ng',
             subInfo: '+44 7900 000 000',
             icon: Mail
         },
         {
             title: 'Collaborations',
-            info: 'create@mubarakismail.studio',
+            info: 'create@mubii.com.ng',
             subInfo: 'Available for Global Travel',
             icon: Users
         },
         {
             title: 'Careers / Internships',
-            info: 'join@mubarakismail.studio',
+            info: 'join@mubii.com.ng',
             subInfo: 'Portfolios via Link Only',
             icon: Briefcase
         },
         {
             title: 'Studio Address',
-            info: '15 Creative Way, Shoreditch',
-            subInfo: 'London, E1 6HU',
+            info: '21 KWAMEH NKRUMAH ASOKORO',
+            subInfo: 'ABUJA, NIGERIA',
             icon: MapPin
         }
     ];
@@ -53,7 +53,7 @@ export function Contact() {
                             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
                             className="text-7xl md:text-9xl font-bold tracking-tighter leading-none uppercase italic"
                         >
-                            Contact <br /> Us
+                            Contact <br /> Me
                         </motion.h1>
                         <motion.p 
                             initial={{ opacity: 0 }}

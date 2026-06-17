@@ -9,7 +9,7 @@ import axios from 'axios';
 import { Logo } from '../components/Logo';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+const API_URL = import.meta.env.VITE_API_URL || 'https://mubii.com.ng';
 const CATEGORIES = ["ALL", "PHOTOGRAPHY", "CINEMATOGRAPHY", "VFX", "COLOR GRADING", "CONTEMPORARY ART"] as const;
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 

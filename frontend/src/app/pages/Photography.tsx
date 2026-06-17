@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { ImageIcon } from 'lucide-react';
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+const API_URL = import.meta.env.VITE_API_URL || 'https://mubii.com.ng';
 
 interface Photo {
   id: number;

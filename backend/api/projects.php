@@ -1,6 +1,13 @@
 <?php
 // Ensure this is only accessed via index.php
-if (!isset($pdo)) exit;
+if (!$pdo) {
+    http_response_code(503);
+    echo json_encode([
+        "error" => "Database unavailable",
+        "details" => "The projects API requires a working database connection."
+    ]);
+    exit;
+}
 
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -10,6 +17,76 @@ function handleCorsFlight() {
         exit;
     }
 }
+
+function normalizeUploadsPath(string $url): ?string {
+    if (empty($url)) {
+        return null;
+    }
+
+    $path = parse_url($url, PHP_URL_PATH);
+    if (!$path || strpos($path, '/uploads/') !== 0) {
+        return null;
+    }
+
+    return realpath(__DIR__ . '/..' . $path) ?: (__DIR__ . '/..' . $path);
+}
+
+function deleteUploadsAsset(string $url): void {
+    $localPath = normalizeUploadsPath($url);
+    if ($localPath && is_file($localPath)) {
+        @unlink($localPath);
+    }
+}
+
+function deleteCacheFiles(): void {
+    $cacheDir = __DIR__ . '/../uploads/cache/';
+    if (!is_dir($cacheDir)) {
+        return;
+    }
+
+    foreach (glob($cacheDir . '*') as $file) {
+        if (is_file($file)) {
+            @unlink($file);
+        }
+    }
+}
+
+function cleanupAssetUrls(array $urls): void {
+    foreach ($urls as $url) {
+        if (is_string($url) && $url !== '') {
+            deleteUploadsAsset($url);
+        }
+    }
+    deleteCacheFiles();
+}
+
+function collectBlockAssetUrls(array $blocks): array {
+    $urls = [];
+
+    foreach ($blocks as $block) {
+        if (!is_array($block)) {
+            continue;
+        }
+
+        $data = $block['data'] ?? [];
+        if (is_string($data)) {
+            $data = json_decode($data, true);
+        }
+
+        if (!is_array($data)) {
+            continue;
+        }
+
+        foreach (['url', 'src', 'image', 'image_url'] as $key) {
+            if (!empty($data[$key]) && is_string($data[$key])) {
+                $urls[] = $data[$key];
+            }
+        }
+    }
+
+    return array_values(array_unique($urls));
+}
+
 handleCorsFlight();
 
 // GET /api/projects or /api/projects?slug={slug} or /api/projects?id={id}
@@ -141,6 +218,11 @@ elseif ($method === 'PUT') {
         exit;
     }
 
+    $oldCoverAsset = $row['cover_asset'] ?? '';
+    $oldBlocksStmt = $pdo->prepare("SELECT * FROM project_blocks WHERE project_id = ? ORDER BY order_index ASC");
+    $oldBlocksStmt->execute([$id]);
+    $oldBlocks = $oldBlocksStmt->fetchAll();
+
     $title      = $data['title']       ?? $row['title'];
     $slug       = $data['slug']        ?? $row['slug'];
     $description= $data['description'] ?? $row['description'];
@@ -164,8 +246,27 @@ elseif ($method === 'PUT') {
                 }
             }
         }
-        
+
         $pdo->commit();
+
+        $newBlocks = [];
+        if ($blocks !== null) {
+            $newBlocks = is_array($blocks) ? $blocks : [];
+        } else {
+            $newBlocks = $oldBlocks;
+        }
+
+        $urlsToDelete = [];
+        if ($oldCoverAsset !== '' && $oldCoverAsset !== $cover_asset) {
+            $urlsToDelete[] = $oldCoverAsset;
+        }
+        foreach (collectBlockAssetUrls($oldBlocks) as $url) {
+            if (!in_array($url, collectBlockAssetUrls($newBlocks), true)) {
+                $urlsToDelete[] = $url;
+            }
+        }
+        cleanupAssetUrls($urlsToDelete);
+
         echo json_encode(["success" => true]);
     } catch (Exception $e) {
         $pdo->rollBack();
@@ -184,8 +285,28 @@ elseif ($method === 'DELETE') {
     }
 
     try {
-        $stmt = $pdo->prepare("DELETE FROM projects WHERE id = ?");
+        $stmt = $pdo->prepare("SELECT * FROM projects WHERE id = ?");
         $stmt->execute([$id]);
+        $project = $stmt->fetch();
+
+        if (!$project) {
+            http_response_code(404);
+            echo json_encode(["error" => "Project not found"]);
+            exit;
+        }
+
+        $blockStmt = $pdo->prepare("SELECT * FROM project_blocks WHERE project_id = ? ORDER BY order_index ASC");
+        $blockStmt->execute([$id]);
+        $blocks = $blockStmt->fetchAll();
+
+        $urlsToDelete = [];
+        if (!empty($project['cover_asset'])) {
+            $urlsToDelete[] = $project['cover_asset'];
+        }
+        $urlsToDelete = array_merge($urlsToDelete, collectBlockAssetUrls($blocks));
+        cleanupAssetUrls($urlsToDelete);
+
+        $pdo->prepare("DELETE FROM projects WHERE id = ?")->execute([$id]);
         echo json_encode(["success" => true]);
     } catch (Exception $e) {
         http_response_code(500);

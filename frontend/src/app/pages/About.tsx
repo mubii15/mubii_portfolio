@@ -90,14 +90,14 @@ export function About() {
 
           <div className="grid md:grid-cols-3 gap-8 mb-16">
             <a
-              href="mailto:hello@mubarakismail.com"
+              href="mailto:hello@mubii.com.ng"
               className="group cursor-hover"
             >
               <div className="flex items-center gap-4 p-6 border border-white/10 hover:border-white/30 transition-all">
                 <Mail className="w-6 h-6 opacity-50 group-hover:opacity-100 transition-opacity" />
                 <div>
                   <div className="text-xs tracking-wider uppercase opacity-50 mb-1">Email</div>
-                  <div className="tracking-wide">hello@mubarakismail.com</div>
+                  <div className="tracking-wide">hello@mubii.com.ng</div>
                 </div>
               </div>
             </a>

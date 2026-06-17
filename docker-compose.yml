@@ -24,10 +24,11 @@ services:
     volumes:
       - ./backend:/var/www/html
     environment:
-      DB_HOST: db
-      DB_USER: mubii
-      DB_PASS: mubii123
-      DB_NAME: portfolio_db
+      DB_HOST: ${DB_HOST:-db}
+      DB_USER: ${DB_USER:-mubii}
+      DB_PASS: ${DB_PASS:-mubii123}
+      DB_NAME: ${DB_NAME:-portfolio_db}
+      APP_URL: ${APP_URL:-https://mubii.com.ng}
     depends_on:
       - db
 
@@ -39,7 +40,7 @@ services:
       - ./frontend:/app
       - /app/node_modules
     environment:
-      VITE_API_URL: http://localhost:8080
+      VITE_API_URL: ${VITE_API_URL:-https://mubii.com.ng}
     depends_on:
       - backend
 

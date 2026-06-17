@@ -1,5 +1,12 @@
 <?php
-if (!isset($pdo)) exit;
+if (!$pdo) {
+    http_response_code(503);
+    echo json_encode([
+        "error" => "Database unavailable",
+        "details" => "The stats API requires a working database connection."
+    ]);
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     http_response_code(405);

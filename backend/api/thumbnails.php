@@ -1,5 +1,12 @@
 <?php
-if (!isset($pdo)) exit;
+if (!$pdo) {
+    http_response_code(503);
+    echo json_encode([
+        "error" => "Database unavailable",
+        "details" => "The thumbnails API requires a working database connection."
+    ]);
+    exit;
+}
 
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -39,7 +46,7 @@ elseif ($method === 'POST') {
     }
 
     // Attempt to map the URL back to local filesystem 
-    // Format: http://localhost:8080/uploads/img/2026/04/unique-id.webp
+    // Format: {APP_URL}/uploads/img/2026/04/unique-id.webp
     $localPath = '';
     $parsedUrl = parse_url($source_url, PHP_URL_PATH); // e.g. /uploads/img/...
     if (strpos($parsedUrl, '/uploads/') === 0) {
@@ -114,7 +121,7 @@ elseif ($method === 'POST') {
 
     if (imagewebp($canvas, $targetPath, 80)) {
         imagedestroy($canvas);
-        $cropped_url = 'http://localhost:8080/uploads/thumbnails/' . $uniqueName;
+        $cropped_url = APP_URL . '/uploads/thumbnails/' . $uniqueName;
 
         // Upsert DB
         $stmt = $pdo->prepare("INSERT INTO category_thumbnails (category, original_url, cropped_url) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE original_url = VALUES(original_url), cropped_url = VALUES(cropped_url)");

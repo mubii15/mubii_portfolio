@@ -6,7 +6,7 @@ import axios from 'axios';
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+const API_URL = import.meta.env.VITE_API_URL || 'https://mubii.com.ng';
 
 export function ProjectDetail() {
     const { id } = useParams<{ id: string }>();

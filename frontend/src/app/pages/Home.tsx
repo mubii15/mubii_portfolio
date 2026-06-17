@@ -7,7 +7,7 @@ import { ArrowRight } from 'lucide-react';
 import axios from 'axios';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+const API_URL = import.meta.env.VITE_API_URL || 'https://mubii.com.ng';
 const CATEGORY_KEYS = ['PHOTOGRAPHY', 'CINEMATOGRAPHY', 'VFX', 'CONTEMPORARY ART'];
 
 // Fallback placeholder for categories with no thumbnail set
