@@ -1,14 +1,12 @@
-Options -Indexes
-
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
 
-  # Force HTTPS (optional, remove if your host handles this differently)
+  # Force HTTPS
   RewriteCond %{HTTPS} off
   RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-  # API / uploads / sitemap should hit PHP first
+  # Route API / Uploads
   RewriteRule ^api/(.*)$ index.php [L,QSA]
   RewriteRule ^uploads/(.*)$ index.php [L,QSA]
   RewriteRule ^sitemap\.xml$ index.php [L,QSA]
@@ -26,8 +24,3 @@ Options -Indexes
   Order allow,deny
   Deny from all
 </FilesMatch>
-
-php_value upload_max_filesize 50M
-php_value post_max_size 50M
-php_value memory_limit 512M
-php_value max_execution_time 300

@@ -3,15 +3,11 @@ import { motion } from 'motion/react';
 import { Lock, Unlock, ArrowRight } from 'lucide-react';
 
 export function AdminAuth({ children }: { children: React.ReactNode }) {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(() => {
+        return typeof window !== 'undefined' && localStorage.getItem('admin_passcode') === '1015';
+    });
     const [passcode, setPasscode] = useState('');
     const [error, setError] = useState(false);
-
-    useEffect(() => {
-        if (localStorage.getItem('admin_passcode') === '1015') {
-            setIsAuthenticated(true);
-        }
-    }, []);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();

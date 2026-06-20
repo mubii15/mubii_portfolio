@@ -29,7 +29,7 @@ export function Navigation() {
         className="fixed top-0 left-0 right-0 z-50 px-8 py-6 mix-blend-difference"
       >
         <div className="flex items-center justify-between">
-          <Link to="/" className="relative z-50 hover:opacity-80 transition-opacity">
+          <Link to="/" className="relative z-50 hover:opacity-80 transition-opacity" aria-label="Mubarak Ismail — Home">
             <Logo className="w-6 md:w-8 h-auto text-white" />
           </Link>
 
@@ -55,13 +55,13 @@ export function Navigation() {
             </div>
 
             <div className="flex items-center gap-6 ml-4 border-l border-white/20 pl-8">
-              <a href="https://twitter.com/mubii_15" target="_blank" rel="noopener noreferrer" className="opacity-50 hover:opacity-100 transition-opacity">
+              <a href="https://twitter.com/mubii_15" target="_blank" rel="noopener noreferrer" className="opacity-50 hover:opacity-100 transition-opacity" aria-label="Twitter">
                 <Twitter size={18} />
               </a>
-              <a href="https://www.instagram.com/mubii15" target="_blank" rel="noopener noreferrer" className="opacity-50 hover:opacity-100 transition-opacity">
+              <a href="https://www.instagram.com/mubii15" target="_blank" rel="noopener noreferrer" className="opacity-50 hover:opacity-100 transition-opacity" aria-label="Instagram">
                 <Instagram size={18} />
               </a>
-              <a href="http://youtube.com/@mubii15" target="_blank" rel="noopener noreferrer" className="opacity-50 hover:opacity-100 transition-opacity">
+              <a href="http://youtube.com/@mubii15" target="_blank" rel="noopener noreferrer" className="opacity-50 hover:opacity-100 transition-opacity" aria-label="YouTube">
                 <Youtube size={18} />
               </a>
             </div>
@@ -91,7 +91,7 @@ export function Navigation() {
             >
               {/* Top bar */}
               <div className="flex items-center justify-between px-8 py-6">
-                <Link to="/" onClick={() => setIsOpen(false)}>
+                <Link to="/" onClick={() => setIsOpen(false)} aria-label="Mubarak Ismail — Home">
                   <Logo className="w-7 h-auto text-white" />
                 </Link>
                 <button
@@ -126,13 +126,13 @@ export function Navigation() {
 
               {/* Bottom socials */}
               <div className="flex items-center gap-8 px-10 pb-12">
-                <a href="https://twitter.com/mubii_15" target="_blank" rel="noopener noreferrer" className="opacity-40 hover:opacity-100 transition-opacity">
+                <a href="https://twitter.com/mubii_15" target="_blank" rel="noopener noreferrer" className="opacity-40 hover:opacity-100 transition-opacity" aria-label="Twitter">
                   <Twitter size={20} />
                 </a>
-                <a href="https://www.instagram.com/mubii15" target="_blank" rel="noopener noreferrer" className="opacity-40 hover:opacity-100 transition-opacity">
+                <a href="https://www.instagram.com/mubii15" target="_blank" rel="noopener noreferrer" className="opacity-40 hover:opacity-100 transition-opacity" aria-label="Instagram">
                   <Instagram size={20} />
                 </a>
-                <a href="http://youtube.com/@mubii15" target="_blank" rel="noopener noreferrer" className="opacity-40 hover:opacity-100 transition-opacity">
+                <a href="http://youtube.com/@mubii15" target="_blank" rel="noopener noreferrer" className="opacity-40 hover:opacity-100 transition-opacity" aria-label="YouTube">
                   <Youtube size={20} />
                 </a>
               </div>

@@ -53,6 +53,7 @@ function AnimatedRoutes() {
     <>
       <FilmGrain />
       <Navigation />
+    <main>
     <Suspense fallback={<LoadingFallback />}>
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
@@ -164,6 +165,7 @@ function AnimatedRoutes() {
         </Routes>
       </AnimatePresence>
     </Suspense>
+    </main>
     </>
   );
 }

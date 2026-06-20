@@ -13,15 +13,14 @@ import {
     Layout,
     Upload,
     Link as LinkIcon,
-    GripVertical,
-    Globe
+    GripVertical
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://mubii.com.ng';
 
-type BlockType = 'gallery' | 'video' | 'text';
+type BlockType = 'gallery' | 'video' | 'text' | 'image';
 
 interface ContentBlock {
     id: string;
@@ -45,6 +44,7 @@ export function AdminProjectEditor() {
     const [blocks, setBlocks] = useState<ContentBlock[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isUploadingBlock, setIsUploadingBlock] = useState<string | null>(null);
+    const [isUploadingCover, setIsUploadingCover] = useState(false);
 
     useEffect(() => {
         if (!isNew) {
@@ -225,7 +225,12 @@ export function AdminProjectEditor() {
                     <section className="space-y-4">
                          <h3 className="text-[10px] font-black tracking-[0.4em] uppercase text-white/20">Cover Asset</h3>
                          <div className="relative aspect-[4/5] bg-white/[0.02] border-2 border-dashed border-white/5 rounded-3xl group hover:border-white/30 transition-all flex flex-col items-center justify-center p-8 text-center overflow-hidden">
-                             {coverAsset ? (
+                             {isUploadingCover ? (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-30">
+                                    <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin mb-4" />
+                                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/60">Uploading...</span>
+                                </div>
+                             ) : coverAsset ? (
                                 <img src={coverAsset} className="absolute inset-0 w-full h-full object-cover" alt="Cover" />
                              ) : (
                                 <>
@@ -240,8 +245,10 @@ export function AdminProjectEditor() {
                                 className="absolute inset-0 opacity-0 cursor-pointer z-20"
                                 onChange={async (e) => {
                                     if (e.target.files?.[0]) {
+                                        setIsUploadingCover(true);
                                         const url = await handleFileUpload(e.target.files[0]);
                                         if (url) setCoverAsset(url);
+                                        setIsUploadingCover(false);
                                     }
                                 }}
                              />
@@ -258,7 +265,7 @@ export function AdminProjectEditor() {
                                 <p className="text-[9px] font-bold text-white/20 uppercase">Drag to reorder blocks</p>
                              </div>
                              <div className="flex gap-3">
-                                <AddBlockButton icon={ImageIcon} label="Gallery" onClick={() => addBlock('gallery')} />
+                                <AddBlockButton icon={ImageIcon} label="Image(s)" onClick={() => addBlock('gallery')} />
                                 <AddBlockButton icon={Film} label="Video" onClick={() => addBlock('video')} />
                                 <AddBlockButton icon={Type} label="Text" onClick={() => addBlock('text')} />
                              </div>
@@ -287,7 +294,7 @@ export function AdminProjectEditor() {
                                                     {block.type === 'video' && <Film className="w-4 h-4" />}
                                                     {block.type === 'text' && <Type className="w-4 h-4" />}
                                                 </div>
-                                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">{block.type} BLOCK</span>
+                                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">{block.type === 'gallery' ? 'IMAGE(S)' : block.type} BLOCK</span>
                                              </div>
                                              <button 
                                                 onClick={() => removeBlock(block.id)}

@@ -37,6 +37,7 @@ export function AdminUpload() {
     const [category, setCategory] = useState('PHOTOGRAPHY');
     const [description, setDescription] = useState('');
     const [date, setDate] = useState<Date>();
+    const [dateText, setDateText] = useState('');
     const [videoLink, setVideoLink] = useState('');
     const [coverAsset, setCoverAsset] = useState<string>('');
     const [projectAssets, setProjectAssets] = useState<string[]>([]);
@@ -52,8 +53,19 @@ export function AdminUpload() {
 
         setIsUploading(true);
         setUploadProgress(0);
+        let finalFile: File | Blob = file;
+
+        // Compress image before upload if it's an image
+        if (file.type.startsWith('image/')) {
+            try {
+                finalFile = await compressImage(file);
+            } catch(e) {
+                console.error("Compression failed", e);
+            }
+        }
+
         const formData = new FormData();
-        formData.append('file', file);
+        formData.append('file', finalFile, file.name);
 
         try {
             const { data } = await axios.post(`${API_URL}/api/upload`, formData, {
@@ -78,6 +90,39 @@ export function AdminUpload() {
         }
     };
 
+    const compressImage = (file: File): Promise<Blob> => {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.src = URL.createObjectURL(file);
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                // Max dimension 2560px
+                const maxDim = 2560;
+                if (width > maxDim || height > maxDim) {
+                    if (width > height) {
+                        height = Math.round((height * maxDim) / width);
+                        width = maxDim;
+                    } else {
+                        width = Math.round((width * maxDim) / height);
+                        height = maxDim;
+                    }
+                }
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) return reject(new Error('No canvas context'));
+                ctx.drawImage(img, 0, 0, width, height);
+                canvas.toBlob((blob) => {
+                    if (blob) resolve(blob);
+                    else reject(new Error('Canvas to blob failed'));
+                }, file.type === 'image/png' ? 'image/png' : 'image/jpeg', 0.85); // 85% quality
+            };
+            img.onerror = (e) => reject(e);
+        });
+    };
+
     const handleMultiUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);
         if (files.length === 0) return;
@@ -90,8 +135,15 @@ export function AdminUpload() {
             setUploadStatus(`Uploading asset ${i + 1} of ${total}...`);
             setUploadProgress(Math.round((i / total) * 100));
             
+            let finalFile: File | Blob = files[i];
+            if (files[i].type.startsWith('image/')) {
+                try {
+                    finalFile = await compressImage(files[i]);
+                } catch(e) {}
+            }
+
             const formData = new FormData();
-            formData.append('file', files[i]);
+            formData.append('file', finalFile, files[i].name);
             try {
                 const { data } = await axios.post(`${API_URL}/api/upload`, formData);
                 if (data.url) uploadedUrls.push(data.url);
@@ -187,7 +239,7 @@ export function AdminUpload() {
                         <UploadCard 
                             icon={Layers} 
                             title="A Project" 
-                            desc="A collection, series, or exhibition."
+                            desc="A collection, series, or project."
                             onClick={() => { setUploadType('project'); handleNext(); }}
                         />
                     </motion.div>
@@ -215,7 +267,7 @@ export function AdminUpload() {
                                 <FormInput label="Title / Name" placeholder="e.g. Nuit Noire" value={title} onChange={setTitle} icon={Type} />
                                 
                                 <div className="space-y-4">
-                                    <label className="text-[10px] tracking-[0.4em] font-black opacity-30 uppercase block px-1">Exhibition Category</label>
+                                    <label className="text-[10px] tracking-[0.4em] font-black opacity-30 uppercase block px-1">Project Category</label>
                                     <div className="relative group">
                                         <select 
                                             value={category}
@@ -239,37 +291,64 @@ export function AdminUpload() {
                                 {/* Proper Date Picker */}
                                 <div className="space-y-4">
                                     <label className="text-[10px] tracking-[0.4em] font-black opacity-30 uppercase block px-1">Date / Timeline</label>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <button
-                                                className={`w-full flex items-center bg-black border border-white/10 rounded-md p-5 text-xs font-bold tracking-widest uppercase focus:border-white/50 outline-none transition-all placeholder:opacity-10 justify-start text-left font-normal ${
-                                                    !date ? "text-white/30" : "text-white"
-                                                }`}
-                                            >
-                                                <CalendarIcon className="mr-3 h-4 w-4 text-white/50" />
-                                                {date ? format(date, "MMMM yyyy") : <span>Select a date</span>}
-                                            </button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0 bg-[#0a0a0a] border border-white/10 text-white" align="start">
-                                            <Calendar
-                                                mode="single"
-                                                selected={date}
-                                                onSelect={setDate}
-                                                initialFocus
-                                                nav_button_previous="[&_svg]:text-white/50"
-                                                nav_button_next="[&_svg]:text-white/50"
-                                                className="bg-[#0a0a0a] text-white rounded-sm"
-                                                classNames={{
-                                                    day_selected: "bg-white text-black hover:bg-white/70 hover:text-black focus:bg-white focus:text-black",
-                                                    day_today: "bg-white/10 text-white",
-                                                    day: "text-white hover:bg-white/10 transition-colors w-8 h-8 rounded-md mx-auto flex items-center justify-center",
-                                                    caption_label: "text-white font-bold tracking-widest uppercase",
-                                                    head_cell: "text-white/50 font-black tracking-widest uppercase text-[10px] w-8",
-                                                    nav_button: "hover:bg-white/10 p-1 rounded-md transition-colors"
-                                                }}
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
+                                    <div className="relative flex items-center">
+                                        <input 
+                                            type="text"
+                                            placeholder="YYYY-MM-DD"
+                                            value={dateText}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                setDateText(val);
+                                                if (val.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                                                    const [y, m, d] = val.split('-');
+                                                    const newDate = new Date(Number(y), Number(m) - 1, Number(d));
+                                                    if (!isNaN(newDate.getTime())) {
+                                                        setDate(newDate);
+                                                    }
+                                                } else if (val === '') {
+                                                    setDate(undefined);
+                                                }
+                                            }}
+                                            className="w-full bg-black border border-white/10 rounded-md p-5 pl-14 text-xs font-bold tracking-widest uppercase focus:border-white/50 outline-none transition-all placeholder:opacity-10 text-white"
+                                        />
+                                        <div className="absolute left-4 flex items-center">
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <button className="text-white/50 hover:text-white transition-colors outline-none focus:outline-none">
+                                                        <CalendarIcon className="h-5 w-5" />
+                                                    </button>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-auto p-0 bg-[#0a0a0a] border border-white/10 text-white" align="start">
+                                                    <Calendar
+                                                        mode="single"
+                                                        selected={date}
+                                                        onSelect={(d) => {
+                                                            setDate(d);
+                                                            if (d) setDateText(format(d, 'yyyy-MM-dd'));
+                                                        }}
+                                                        initialFocus
+                                                        captionLayout="dropdown-buttons"
+                                                        fromYear={1980}
+                                                        toYear={new Date().getFullYear() + 5}
+                                                        nav_button_previous="[&_svg]:text-white/50"
+                                                        nav_button_next="[&_svg]:text-white/50"
+                                                        className="bg-[#0a0a0a] text-white rounded-sm"
+                                                        classNames={{
+                                                            day_selected: "bg-white text-black hover:bg-white/70 hover:text-black focus:bg-white focus:text-black",
+                                                            day_today: "bg-white/10 text-white",
+                                                            day: "text-white hover:bg-white/10 transition-colors w-8 h-8 rounded-md mx-auto flex items-center justify-center",
+                                                            caption_label: "text-white font-bold tracking-widest uppercase flex items-center gap-2",
+                                                            head_cell: "text-white/50 font-black tracking-widest uppercase text-[10px] w-8",
+                                                            nav_button: "hover:bg-white/10 p-1 rounded-md transition-colors",
+                                                            caption_dropdowns: "flex justify-center gap-2 w-full",
+                                                            dropdown_month: "bg-[#0a0a0a] text-white border-none text-xs uppercase tracking-widest outline-none",
+                                                            dropdown_year: "bg-[#0a0a0a] text-white border-none text-xs uppercase tracking-widest outline-none"
+                                                        }}
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+                                        </div>
+                                    </div>
                                 </div>
                              </div>
 
@@ -433,10 +512,10 @@ export function AdminUpload() {
                                 {isFinalizing ? (
                                     <>
                                         <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
-                                        <span>ESTABLISHING EXHIBITION...</span>
+                                        <span>ESTABLISHING PROJECT...</span>
                                     </>
                                 ) : (
-                                    'Finalize Exhibition'
+                                    'Finalize Project'
                                 )}
                              </button>
                         </div>

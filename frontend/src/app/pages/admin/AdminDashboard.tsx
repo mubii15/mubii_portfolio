@@ -110,7 +110,7 @@ export function AdminDashboard() {
                         >
                             <div className="flex flex-col items-start translate-x-0 group-hover:translate-x-2 transition-transform">
                                 <span className="text-xs font-black uppercase tracking-widest leading-none">Upload Project</span>
-                                <span className="text-[10px] font-bold opacity-60 uppercase tracking-tight">Full Exhibition</span>
+                                <span className="text-[10px] font-bold opacity-60 uppercase tracking-tight">Full Project</span>
                             </div>
                             <Layers className="w-6 h-6 rotate-[-10deg] group-hover:rotate-0 transition-transform" />
                         </button>

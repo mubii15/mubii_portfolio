@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Logo } from '../components/Logo';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { OptimizedImage } from '../components/OptimizedImage';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://mubii.com.ng';
 const CATEGORIES = ["ALL", "PHOTOGRAPHY", "CINEMATOGRAPHY", "VFX", "COLOR GRADING", "CONTEMPORARY ART"] as const;
@@ -214,12 +215,9 @@ export function CategoryGallery() {
                                                         {/* Third Layer (Optional, furthest back) */}
                                                         {subImages.length > 1 && (
                                                             <div className="absolute inset-0 bg-black overflow-hidden border border-white/10 rounded-sm translate-x-3 translate-y-3 -rotate-3 group-hover:translate-x-6 group-hover:translate-y-4 group-hover:-rotate-6 transition-all duration-1000 delay-75 shadow-2xl">
-                                                                <motion.img 
+                                                                <OptimizedImage 
                                                                     src={`${API_URL}/api/thumb?path=${encodeURIComponent(subImages[1])}`} 
-                                                                    loading="lazy"
-                                                                    initial={{ opacity: 0 }}
-                                                                    whileInView={{ opacity: 0.6 }}
-                                                                    viewport={{ once: true }}
+                                                                    alt="Layer 3"
                                                                     className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-700" 
                                                                 />
                                                             </div>
@@ -227,12 +225,9 @@ export function CategoryGallery() {
                                                         {/* Second Layer */}
                                                         {subImages.length > 0 ? (
                                                             <div className="absolute inset-0 bg-black overflow-hidden border border-white/10 rounded-sm translate-x-1.5 translate-y-1.5 rotate-2 group-hover:-translate-x-4 group-hover:translate-y-2 group-hover:rotate-3 transition-all duration-1000 shadow-2xl">
-                                                                <motion.img 
+                                                                <OptimizedImage 
                                                                     src={`${API_URL}/api/thumb?path=${encodeURIComponent(subImages[0])}`} 
-                                                                    loading="lazy"
-                                                                    initial={{ opacity: 0 }}
-                                                                    whileInView={{ opacity: 0.6 }}
-                                                                    viewport={{ once: true }}
+                                                                    alt="Layer 2"
                                                                     className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-700" 
                                                                 />
                                                             </div>
@@ -246,13 +241,9 @@ export function CategoryGallery() {
                                                     className="relative w-full h-full overflow-hidden bg-white/5 border border-white/10 transition-all duration-1000 group-hover:shadow-[0_20px_50px_rgba(0,0,0,0.8)] z-10"
                                                     style={{ boxShadow: `0 0 40px ${CATEGORY_COLORS[item.category] ?? '#fff'}22` }}
                                                 >
-                                                    <motion.img
+                                                    <OptimizedImage
                                                         src={`${API_URL}/api/thumb?path=${encodeURIComponent(item.cover_asset)}`}
                                                         alt={item.title}
-                                                        loading="lazy"
-                                                        initial={{ opacity: 0 }}
-                                                        whileInView={{ opacity: 1 }}
-                                                        viewport={{ once: true }}
                                                         className="w-full h-full object-cover transition-all duration-1000 group-hover:scale-105"
                                                     />
                                                     <div className="absolute top-4 left-4 z-10">
@@ -300,22 +291,15 @@ export function CategoryGallery() {
                                 <X className="w-8 h-8" />
                             </button>
                             <div className="relative z-[110] flex flex-col md:flex-row gap-12 max-w-7xl w-full items-center" onClick={() => setSelectedLightboxItem(null)}>
-                                <motion.div 
-                                    className="w-full md:w-3/5 flex items-center justify-center bg-white/5 border border-white/10 p-4 min-h-[40vh]"
-                                    initial={{ scale: 0.9, opacity: 0 }}
-                                    animate={{ scale: 1, opacity: 1 }}
-                                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                                    onClick={(e: React.MouseEvent) => e.stopPropagation()}
-                                >
-                                    <motion.img 
-                                        src={selectedLightboxItem.cover_asset} 
-                                        alt={selectedLightboxItem.title} 
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        loading="lazy"
-                                        className="max-w-full max-h-[75vh] object-contain shadow-2xl" 
-                                    />
-                                </motion.div>
+                                    <div className="w-full md:w-3/5 flex items-center justify-center bg-white/5 border border-white/10 p-4 min-h-[40vh]" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                                        <div className="w-full max-h-[75vh] relative flex items-center justify-center">
+                                            <OptimizedImage 
+                                                src={selectedLightboxItem.cover_asset} 
+                                                alt={selectedLightboxItem.title} 
+                                                className="max-w-full max-h-[75vh] object-contain shadow-2xl" 
+                                            />
+                                        </div>
+                                    </div>
                                 <div className="w-full md:w-2/5 flex flex-col gap-8" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                                     <div>
                                         <motion.span initial={{ opacity: 0, x: -20 }} animate={{ opacity: 0.4, x: 0 }} transition={{ delay: 0.3 }} className="text-xs tracking-[0.5em] font-bold uppercase block">

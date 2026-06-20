@@ -1,7 +1,9 @@
 
 import { motion, AnimatePresence } from 'motion/react';
+import { OptimizedImage } from './OptimizedImage';
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
 
 export interface CategoryItem {
     id: number;
@@ -26,52 +28,7 @@ interface FanOutStackProps {
     categoryData?: CategoryData[];
 }
 
-const METADATA_BY_CATEGORY = [
-    {
-        name: "PHOTOGRAPHY",
-        items: [
-            { title: "URBAN SOLITUDE", type: "SINGLE", date: "MAR 2024", desc: "A series exploring the quiet moments within bustling cityscapes, focusing on minimal human presence." },
-            { title: "NEON NIGHTS", type: "PROJECT", date: "JAN 2024", desc: "Capturing the vibrant energy and cinematic lighting of night street photography." },
-            { title: "ARCHITECTURAL LINES", type: "SINGLE", date: "NOV 2023", desc: "Symmetry and geometric patterns in modern metropolitan design." },
-            { title: "SILENT PORTRAITS", type: "PROJECT", date: "AUG 2023", desc: "Low-light portraiture focusing on emotion through shadow and form." },
-            { title: "DESERT ECHOES", type: "SINGLE", date: "MAY 2023", desc: "The intersection of vast landscapes and minimal textures." },
-            { title: "GRAIN & GLORY", type: "PROJECT", date: "FEB 2023", desc: "Experimental film photography highlighting texture and imperfection." }
-        ]
-    },
-    {
-        name: "CINEMATOGRAPHY",
-        items: [
-            { title: "THE LAST FRAME", type: "SHORT FILM", date: "APR 2024", desc: "Directing the visual narrative for an experimental short about memory." },
-            { title: "GOLDEN HOUR", type: "MUSIC VIDEO", date: "FEB 2024", desc: "Cinematic lighting setup for a high-concept production." },
-            { title: "DUSK UNTIL DAWN", type: "PROJECT", date: "DEC 2023", desc: "Continuous 24-hour time-lapse capturing light transitions." },
-            { title: "VELVET MOTION", type: "SINGLE", date: "OCT 2023", desc: "Slow-motion study of fluid dynamics and light." },
-            { title: "URBAN PULSE", type: "PROJECT", date: "JUL 2023", desc: "A fast-paced rhythmic montage of city life." },
-            { title: "NOIR TALES", type: "SHORT FILM", date: "MAR 2023", desc: "Modern black and white aesthetic for a dramatic short." }
-        ]
-    },
-    {
-        name: "VFX / COLOR",
-        items: [
-            { title: "COSMOS BEYOND", type: "PROJECT", date: "MAY 2024", desc: "Procedural planet generation and space simulation." },
-            { title: "GLITCH REALITY", type: "SINGLE", date: "MAR 2024", desc: "Integrating digital artifacts into physical environments." },
-            { title: "PASTEL SKIES", type: "COLOR GRADE", date: "JAN 2024", desc: "Custom LUT development for a dream-like cinematic palette." },
-            { title: "PARTICLE FLOW", type: "PROJECT", date: "NOV 2023", desc: "Dynamic simulation of over 2 million particles." },
-            { title: "CHROME DREAMS", type: "VFX", date: "SEP 2023", desc: "Photorealistic rendering of reflective surfaces." },
-            { title: "RETRO FUTURE", type: "COLOR GRADE", date: "JUN 2023", desc: "Stylized aesthetic blending 80s neon with modern tech." }
-        ]
-    },
-    {
-        name: "CONTEMPORARY ART",
-        items: [
-            { title: "FLUID IDENTITIES", type: "INSTALLATION", date: "JUN 2024", desc: "Interactive digital canvas reacting to viewer distance." },
-            { title: "ECHO CHAMBERS", type: "PROJECT", date: "APR 2024", desc: "A series of generative art pieces based on sound patterns." },
-            { title: "DIGITAL NATURE", type: "SINGLE", date: "FEB 2024", desc: "algorithmic growth patterns mimicking organic life." },
-            { title: "RESONANCE", type: "INSTALLATION", date: "DEC 2023", desc: "Mapping visual data onto geometric sculptural forms." },
-            { title: "CYBER ORGANICS", type: "PROJECT", date: "OCT 2023", desc: "Blending biological structures with robotic aesthetics." },
-            { title: "VIRTUAL HORIZONS", type: "SINGLE", date: "JUL 2023", desc: "Exploring perspective in purely digital environments." }
-        ]
-    }
-];
+
 
 export function FanOutStack({ images, variant = 'fan', onIndexSelect, selectedIndex: controlledIndex, categoryData = [] }: FanOutStackProps) {
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -79,7 +36,6 @@ export function FanOutStack({ images, variant = 'fan', onIndexSelect, selectedIn
     const [activeDetailIndex, setActiveDetailIndex] = useState(0);
     const [descExpanded, setDescExpanded] = useState(false);
     const reelRef = useRef<HTMLDivElement>(null);
-    const navigate = useNavigate();
 
     // Use controlled index if provided, otherwise local
     const selectedIndex = controlledIndex !== undefined ? controlledIndex : localSelectedIndex;
@@ -115,7 +71,6 @@ export function FanOutStack({ images, variant = 'fan', onIndexSelect, selectedIn
                     rotate: 0,
                     scale: 0.9,
                     opacity: 1,
-                    zIndex: index + 1,
                 };
                 break;
             case 'grid':
@@ -131,7 +86,6 @@ export function FanOutStack({ images, variant = 'fan', onIndexSelect, selectedIn
                             y: 0,
                             scale: 1,
                             opacity: 1,
-                            zIndex: 10
                         };
                     } else {
                         // Not selected: Dim and Shrink
@@ -141,7 +95,6 @@ export function FanOutStack({ images, variant = 'fan', onIndexSelect, selectedIn
                             rotate: 0,
                             scale: 0.9, // Shrink
                             opacity: 0.3, // Dim
-                            zIndex: 0,
                         };
                     }
                 } else {
@@ -152,7 +105,6 @@ export function FanOutStack({ images, variant = 'fan', onIndexSelect, selectedIn
                         rotate: 0,
                         scale: 1,
                         opacity: 1,
-                        zIndex: 1,
                     };
                 }
                 break;
@@ -164,7 +116,6 @@ export function FanOutStack({ images, variant = 'fan', onIndexSelect, selectedIn
                     rotate: offset * 5,
                     scale: 1,
                     opacity: 1,
-                    // Z-Index handled in style
                 };
                 break;
         }
@@ -217,7 +168,8 @@ export function FanOutStack({ images, variant = 'fan', onIndexSelect, selectedIn
             <AnimatePresence>
                 {selectedIndex !== null && (
                     <motion.div
-                        className="fixed inset-0 z-50 overflow-hidden"
+                        className="fixed inset-0 overflow-hidden"
+                        style={{ zIndex: 999 }}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -228,38 +180,7 @@ export function FanOutStack({ images, variant = 'fan', onIndexSelect, selectedIn
                             onClick={closeDetail}
                         />
 
-                        {/* SEE MORE Action - Pinned to Bottom Right */}
-                        <motion.div
-                            className="absolute bottom-10 right-10 md:bottom-16 md:right-16 z-[60] flex flex-col items-end cursor-pointer"
-                            initial="initial"
-                            whileHover="hover"
-                            animate="visible"
-                            onClick={() => {
-                                const category = METADATA_BY_CATEGORY[selectedIndex]?.name.toLowerCase().replace(" / ", "-");
-                                navigate(`/gallery/${category}`);
-                            }}
-                        >
-                            <motion.span
-                                variants={{
-                                    initial: { opacity: 0, y: 10 },
-                                    visible: { opacity: 0.6, y: 0 },
-                                    hover: { opacity: 1, y: 0 }
-                                }}
-                                transition={{ duration: 0.5 }}
-                                className="text-white text-[10px] md:text-xs tracking-[0.4em] font-bold uppercase transition-all"
-                            >
-                                SEE MORE
-                            </motion.span>
-                            <motion.div
-                                variants={{
-                                    initial: { scaleX: 0 },
-                                    visible: { scaleX: 0 },
-                                    hover: { scaleX: 1 }
-                                }}
-                                className="h-[1px] bg-white w-full mt-1.5 origin-right"
-                                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                            />
-                        </motion.div>
+
 
                         {/* REMOVED: Large Title at Bottom (User requested removal as it is in footer) */}
                         
@@ -318,12 +239,12 @@ export function FanOutStack({ images, variant = 'fan', onIndexSelect, selectedIn
                                                     <motion.div 
                                                         initial={{ opacity: 0 }}
                                                         animate={{ opacity: 0.5 }}
-                                                        className="text-[10px] md:text-xs tracking-[0.4em] font-bold uppercase"
+                                                        className="text-[10px] md:text-xs tracking-[0.4em] font-bold capitalize"
                                                     >
-                                                        {item.item_type.toUpperCase()} • {formattedDate}
+                                                        {item.item_type} • {formattedDate}
                                                     </motion.div>
                                                     <motion.h2 className="text-2xl md:text-5xl font-bold tracking-tighter leading-none">
-                                                        {item.title.split('').map((char, i) => (
+                                                        {item.title.split(' ').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ').split('').map((char: string, i: number) => (
                                                             <motion.span
                                                                 key={i}
                                                                 initial={{ opacity: 0, y: 20 }}
@@ -357,6 +278,17 @@ export function FanOutStack({ images, variant = 'fan', onIndexSelect, selectedIn
                                                         )}
                                                     </div>
                                                 )}
+                                                {isMobile && (
+                                                    <div className="mt-4 pointer-events-auto w-full flex justify-center z-30">
+                                                        <Link 
+                                                            to="/gallery" 
+                                                            className="inline-flex items-center gap-4 px-6 py-3 border border-white/20 text-white text-[10px] font-bold tracking-[0.3em] uppercase rounded-full bg-white/10 backdrop-blur-sm"
+                                                        >
+                                                            See All Works
+                                                            <ArrowRight className="w-3.5 h-3.5" />
+                                                        </Link>
+                                                    </div>
+                                                )}
                                             </motion.div>
                                         );
                                     })()}
@@ -368,18 +300,26 @@ export function FanOutStack({ images, variant = 'fan', onIndexSelect, selectedIn
                         <motion.div
                             ref={reelRef}
                             onScroll={handleReelScroll}
-                            className="absolute top-0 h-full overflow-y-auto scrollbar-hide py-10"
-                            style={{
-                                width: isMobile ? '80vw' : '24vw',
-                                left: isMobile
-                                    ? '10vw'
-                                    : `calc(50% + ${(selectedIndex - center) * 24.5}vw - 12vw)`
-                            }}
+                            className="absolute inset-0 w-full h-full overflow-y-auto scrollbar-hide py-10 pointer-events-auto cursor-pointer"
                             initial={{ y: 0, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             exit={{ y: 0, opacity: 0 }}
+                            onClick={(e) => {
+                                if (e.target === e.currentTarget) closeDetail();
+                            }}
                         >
-                            <div className="flex flex-col gap-8 w-full">
+                            <div 
+                                className="flex flex-col gap-8 w-full cursor-default"
+                                onClick={(e) => {
+                                    if (e.target === e.currentTarget) closeDetail();
+                                }}
+                                style={{
+                                    width: isMobile ? '80vw' : '24vw',
+                                    marginLeft: isMobile
+                                        ? '10vw'
+                                        : `calc(50% + ${(selectedIndex - center) * 24.5}vw - 12vw)`
+                                }}
+                            >
                                 {/* Show the 3 most recent items in this category */}
                                 {(() => {
                                     const catItems = categoryData[selectedIndex]?.items ?? [];
@@ -388,11 +328,10 @@ export function FanOutStack({ images, variant = 'fan', onIndexSelect, selectedIn
                                         : [images[selectedIndex]];
                                     return reelImages.map((src, item) => (
                                         <div key={item} className="w-full aspect-[400/650] bg-gray-900 shadow-2xl border border-white/10 shrink-0">
-                                            <img
+                                            <OptimizedImage
                                                 src={src}
-                                                loading="lazy"
+                                                alt="Reel Image"
                                                 className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity"
-                                                alt=""
                                             />
                                         </div>
                                     ));
@@ -408,10 +347,11 @@ export function FanOutStack({ images, variant = 'fan', onIndexSelect, selectedIn
             {isMobileGrid ? (
                 // RENDER: MOBILE GRID (Native Scroll)
                 <div
-                    className={`w-full h-[600px] flex items-center overflow-x-auto snap-x snap-mandatory scrollbar-hide px-[10vw] transition-all duration-500`}
+                    className={`w-full h-[60vh] max-h-[500px] flex items-center overflow-x-auto snap-x snap-mandatory scrollbar-hide px-[10vw] transition-all duration-500`}
                     style={{
                         opacity: selectedIndex !== null ? 0.3 : 1,
-                        pointerEvents: selectedIndex !== null ? 'none' : 'auto'
+                        pointerEvents: selectedIndex !== null ? 'none' : 'auto',
+                        WebkitOverflowScrolling: 'touch'
                     }}
                 >
                     <div className="flex gap-4">
@@ -423,11 +363,11 @@ export function FanOutStack({ images, variant = 'fan', onIndexSelect, selectedIn
                                 style={{ transform: selectedIndex === index ? 'scale(1)' : (selectedIndex !== null ? 'scale(0.95)' : 'scale(1)') }}
                             >
                                 <div className="relative w-full h-full overflow-hidden rounded-xl shadow-2xl bg-gray-900 border border-white/10">
-                                    <img
+                                    <OptimizedImage
                                         src={src}
-                                        loading="lazy"
                                         alt={`Portfolio item ${index + 1}`}
-                                        className="w-full h-full object-cover"
+                                        className="w-full h-full object-cover pointer-events-none select-none"
+                                        draggable={false}
                                     />
                                     {/* Plus Icon Overlay */}
                                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -441,11 +381,11 @@ export function FanOutStack({ images, variant = 'fan', onIndexSelect, selectedIn
 
                                 {/* Title Check */}
                                 <div className="mt-4 text-center">
-                                    <h3 className="text-white text-sm tracking-[0.2em] font-bold uppercase mb-1">
-                                        {["PHOTOGRAPHY", "CINEMATOGRAPHY", "VFX / COLOR", "CONTEMPORARY ART"][index]}
+                                    <h3 className="text-white text-sm tracking-[0.2em] font-bold capitalize mb-1">
+                                        {["Photography", "Cinematography", "VFX / Color", "Contemporary Art"][index]}
                                     </h3>
-                                    <p className="text-gray-500 text-[10px] tracking-[0.2em] uppercase">
-                                        {Math.floor(Math.random() * 15) + 8} IMAGES
+                                    <p className="text-gray-500 text-[10px] tracking-[0.2em] capitalize">
+                                        {categoryData[index]?.items?.length ?? 0} Images
                                     </p>
                                 </div>
                             </div>
@@ -454,78 +394,90 @@ export function FanOutStack({ images, variant = 'fan', onIndexSelect, selectedIn
                 </div>
             ) : (
                 // RENDER: DESKTOP / FAN / COLLAPSED (Framer Motion)
-                <div className={`relative flex items-center justify-center transition-all duration-700
-                    ${variant === 'grid' ? 'w-full h-[650px]' : 'w-[400px] h-[500px]'}
-                `}>
+                <div 
+                    className={`relative flex items-center justify-center transition-all duration-700
+                        ${variant === 'grid' ? 'w-full h-[650px]' : (isMobile ? 'w-[70vw] h-[50vh]' : 'w-[400px] h-[500px]')}
+                    `}
+                >
                     {images.map((src, index) => {
                         const { initial, animate } = getStyles(index);
                         const isGrid = variant === 'grid';
 
                         // Calculate z-index logic
-                        let zIndexStyle: number | undefined;
-                        if (variant === 'fan') {
-                            zIndexStyle = hoveredIndex === index ? 100 : 50 - index;
-                        } else if (variant === 'collapsed') {
-                            zIndexStyle = 50 - index;
+                        let zIndexStyle: number;
+                        if (variant === 'grid') {
+                            zIndexStyle = selectedIndex === index ? 10 : 50 - index;
                         } else {
-                            zIndexStyle = 1;
+                            zIndexStyle = hoveredIndex === index && variant === 'fan' ? 100 : 50 - index;
                         }
 
                         return (
                             <motion.div
                                 key={index}
-                                // FIX: Constrain width in 'grid' mode to avoid overlapping click targets
-                                // Use margin-left to center the constrained width relative to left-1/2
-                                className={`absolute top-0 h-full origin-bottom flex items-center justify-center p-4 cursor-pointer
-                                    ${isGrid ? 'w-[24vw] left-1/2 -ml-[12vw]' : 'w-full left-0'}
+                                className={`absolute top-0 origin-bottom flex items-center justify-center p-2 md:p-4 cursor-pointer transition-all duration-700
+                                    ${isGrid ? 'w-[24vw] left-1/2 -ml-[12vw] h-full' : (isMobile ? 'w-[70vw] left-1/2 -ml-[35vw] h-full' : 'w-[400px] left-1/2 -ml-[200px] h-full')}
                                 `}
                                 initial={initial}
-                                animate={animate}
-                                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                                animate={{ ...animate, zIndex: zIndexStyle }}
+                                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], zIndex: { duration: 0 } }}
                                 style={{ zIndex: zIndexStyle }}
                                 whileHover={variant === 'fan' ? { scale: 1.1, y: -30, transition: { duration: 0.3 } } : undefined}
                                 onHoverStart={() => setHoveredIndex(index)}
                                 onHoverEnd={() => setHoveredIndex(null)}
                                 onClick={() => handleItemClick(index)}
                             >
-                                <div className={`flex flex-col items-center transition-all duration-700
-                                     ${isGrid ? 'w-[24vw]' : 'w-full h-full'}
-                                `}>
-                                    <div className={`relative overflow-hidden shadow-2xl bg-gray-900 border border-white/10 transition-all duration-700 flex-shrink-0
-                                        ${isGrid ? 'rounded-none w-full h-[650px] mb-6' : 'rounded-lg w-full h-full'}
-                                    `}>
-                                        <img
+                                <div 
+                                    className={`flex flex-col items-center transition-all duration-700
+                                        ${isGrid ? 'w-[24vw] h-full' : 'w-full h-full'}
+                                    `}
+                                >
+                                    <div 
+                                        className={`relative overflow-hidden shadow-2xl bg-gray-900 border border-white/10 flex-shrink-0 w-full transition-all duration-700
+                                            ${isGrid ? 'h-[650px] rounded-none mb-6' : 'h-full rounded-xl mb-0'}
+                                        `}
+                                    >
+                                        <OptimizedImage
                                             src={src}
-                                            loading="lazy"
-                                            alt={`Portfolio item ${index + 1}`}
+                                            forceEager={index === 0}
+                                            alt={['Photography', 'Cinematography', 'VFX / Color', 'Contemporary Art'][index] || `Portfolio item ${index + 1}`}
                                             className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity duration-500"
                                         />
-                                        {isGrid && (
-                                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                                <div className="w-16 h-16 rounded-full border border-white/80 flex items-center justify-center backdrop-blur-sm bg-black/10">
-                                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M12 5V19M5 12H19" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                                    </svg>
-                                                </div>
-                                            </div>
-                                        )}
+                                        <AnimatePresence>
+                                            {isGrid && (
+                                                <motion.div 
+                                                    initial={{ opacity: 0 }}
+                                                    animate={{ opacity: 1 }}
+                                                    exit={{ opacity: 0 }}
+                                                    className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                                                >
+                                                    <div className="w-16 h-16 rounded-full border border-white/80 flex items-center justify-center backdrop-blur-sm bg-black/10">
+                                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <path d="M12 5V19M5 12H19" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                                        </svg>
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
                                     </div>
 
-                                    {isGrid && (
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.2 }}
-                                            className="text-center"
-                                        >
-                                            <h3 className="text-white text-sm md:text-sm tracking-[0.2em] font-bold uppercase mb-1">
-                                                {["PHOTOGRAPHY", "CINEMATOGRAPHY", "VFX / COLOR", "CONTEMPORARY ART"][index]}
-                                            </h3>
-                                            <p className="text-gray-500 text-[10px] md:text-[11px] tracking-[0.2em] uppercase">
-                                                {Math.floor(Math.random() * 15) + 8} IMAGES
-                                            </p>
-                                        </motion.div>
-                                    )}
+                                    <AnimatePresence>
+                                        {isGrid && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: 10 }}
+                                                transition={{ delay: 0.2 }}
+                                                className="text-center"
+                                            >
+                                                <h3 className="text-white text-sm md:text-sm tracking-[0.2em] font-bold capitalize mb-1">
+                                                    {["Photography", "Cinematography", "VFX / Color", "Contemporary Art"][index]}
+                                                </h3>
+                                                <p className="text-gray-500 text-[10px] md:text-[11px] tracking-[0.2em] capitalize">
+                                                    {categoryData[index]?.items?.length ?? 0} Images
+                                                </p>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                 </div>
                             </motion.div>
                         );
